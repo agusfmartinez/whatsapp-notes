@@ -39,22 +39,19 @@ Podés instalar la app en tu celular:
 
 ---
 ## 📝 Changelog
-### v0.2.0 - 2025-08-28
+### v0.2.0 - 2025-08-27
 - Ajustes de colores y botones.
-
 - Se agregó dropdown en los headers.
-
 - Mejoras en el diseño del input de mensajes.
-  
-- Funcionalidad para eliminar un chat.
+- Nueva función para eliminar chats desde el menú.
 
-### v0.1.0 - 2025-08-25
+### v0.1.0 - 2025-08-26
 
-- Versión inicial con lista de chats y vista de mensajes.
-
-- Guardado en localStorage.
-
-- UI estilo WhatsApp con soporte PWA.
+- Versión inicial de la aplicación.
+- Lista de chats con estilo WhatsApp.
+- Vista de mensajes dentro de cada chat.
+- Guardado de mensajes y chats en `localStorage`.
+- Soporte básico para PWA (manifest.json e instalación en móviles).
 
 ---
 
