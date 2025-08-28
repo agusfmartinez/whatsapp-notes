@@ -334,7 +334,7 @@ export default function WhatsAppInterface() {
       </div>
 
       {/* Bottom Navigation */}
-      <div className="border-t border-gray-800 bg-gray-900">
+      <div className="border-t border-gray-800 bg-[#0b1014]">
         <div className="flex justify-around items-center py-2">
           <div className="flex flex-col items-center gap-1">
             <div className="relative bg-[#0f3728] py-1.5 px-6  rounded-full">
