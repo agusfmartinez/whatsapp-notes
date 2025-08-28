@@ -1,40 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# 📒 WhatsApp Notes
 
-## Getting Started
+Bloc de notas con interfaz estilo WhatsApp.  
+Cada chat funciona como un anotador diferente, simulando una conversación pero en realidad es un lugar para tomar notas.
 
-First, run the development server:
+Ideal para quienes quieren escribir en el celular con una experiencia familiar, rápida y sin necesidad de registrarse.
+
+👉 **Probar la app aquí**: [whatsapp-notes.vercel.app](https://whatsapp-notes.vercel.app)
+
+---
+
+## 📌 About
+
+- La app está desarrollada con **Next.js 15 + TypeScript + TailwindCSS + shadcn/ui**.
+- Funciona como **PWA (Progressive Web App)**, lo que permite instalarla en el celular desde el navegador.
+- No requiere usuarios ni registros: todo se guarda en el **almacenamiento local (localStorage)** del dispositivo.
+- Inspirada en el diseño de WhatsApp para una experiencia intuitiva.
+
+---
+
+## ✨ Features
+
+- 📂 Lista de chats como “anotadores” independientes.  
+- 💬 Envío de mensajes dentro de cada chat.  
+- 📌 Tildes de leído/no leído, hora del último mensaje.  
+- 🗂️ Filtros: Todos, No leídos, Favoritos, Grupos.  
+- ⬇️ Menú dropdown en headers con opciones de gestión.  
+- ➕ Botón flotante para crear nuevos chats.  
+- 🎨 Estilo similar a WhatsApp con tema oscuro.  
+- 📱 Compatible con **pantallas móviles** (PWA instalable).  
+
+---
+
+## 📱 PWA
+Podés instalar la app en tu celular:
+1. Abrí la aplicación en Google Chrome (Android) o Safari (iOS).
+2. Menú → “Agregar a pantalla de inicio”.
+3. La app se abre sin barra del navegador, como una aplicación nativa.
+
+---
+## 📝 Changelog
+### v0.2.0 - 2025-08-28
+- Ajustes de colores y botones.
+
+- Se agregó dropdown en los headers.
+
+- Mejoras en el diseño del input de mensajes.
+  
+- Funcionalidad para eliminar un chat.
+
+### v0.1.0 - 2025-08-25
+
+- Versión inicial con lista de chats y vista de mensajes.
+
+- Guardado en localStorage.
+
+- UI estilo WhatsApp con soporte PWA.
+
+---
+
+## ⚙️ Instalación y ejecución
+
+Cloná el repositorio e instalá dependencias:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/tuusuario/whatsapp-notes.git
+cd whatsapp-notes
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Ejecutar en modo desarrollo:
+```bash
+npm run dev
+```
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+Abrir en el navegador:
+```bash
+http://localhost:3000
+```
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+---
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+## 🚀 Deploy
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+El proyecto está configurado para desplegarse fácilmente en Vercel.
+Solo tenés que conectar el repositorio y cada push a main genera una nueva versión online.
