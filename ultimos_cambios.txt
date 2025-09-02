@@ -1,0 +1,6 @@
+ultimos cambios 02/09
+ajuste visual para seccion chat, ajuste en desplazamiento de teclado vista mobile
+switch entre enviar y recibir mensajes
+mantener presionado el mensaje para activar modo seleccion
+en modo seleccion se habilita editar mensaje
+en modo seleccion se habilita eliminar mensaje

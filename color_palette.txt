@@ -1,0 +1,115 @@
+dark mode android
+chat list:
+background color: #0b1014
+input background: #22292c
+font gray: #85898b
+green buttons: #21c063
+dark green buttons: #0f3728
+
+message send: #134c36
+message received: #1e272b
+
+¿Cómo se decide el número de versión?
+
+Lo más usado es Semantic Versioning (SemVer) → MAJOR.MINOR.PATCH.
+
+MAJOR: cambios grandes, que rompen compatibilidad. Ej: v2.0.0.
+
+MINOR: nuevas funcionalidades compatibles. Ej: v1.2.0 → v1.3.0.
+
+PATCH: corrección de bugs, pequeños ajustes. Ej: v1.2.1 → v1.2.2.
+
+👉 No es necesario hacerlo en cada commit. Normalmente se hace en:
+
+Cada release importante (cuando juntás varias features).
+
+O cada vez que deployás algo público/estable.
+
+En tu caso: podés subir commits todos los días, pero solo actualizar la versión cuando tenés algo “cerrado” (ej: nuevo dropdown, nuevo diseño → v0.2.0).
+
+
+1. Deployments en Vercel
+
+Cuando conectás tu repo de GitHub a Vercel:
+
+Cada push a main → genera un Production Deployment.
+
+Cada PR o branch → genera un Preview Deployment (URL temporal tipo feature-x-username.vercel.app).
+
+2. Environments (Development / Preview / Production)
+
+En Vercel podés tener variables de entorno distintas según el entorno:
+
+Development → cuando corrés npm run dev en tu compu.
+
+Preview → deploys de branches que no son main.
+
+Production → deploy de la rama main.
+
+1. Configurar ramas en GitHub
+
+En tu repo, definí:
+
+main → producción estable.
+
+develop → la que usás día a día (puede haber más ramas feature, pero develop es la base).
+
+2. Configurar en Vercel
+
+En tu proyecto en Vercel:
+En Production Branch es main. Eso significa que solo lo que merges en main va a producción.
+Todo lo que esté en develop (y cualquier otra branch) → va a deploy automático en Preview.
+Vercel te da una URL tipo: whatsapp-notes-git-develop-username.vercel.app. Esa es tu pre-producción.
+
+3. Flujo de trabajo
+
+Trabajás en develop.
+
+Vercel te da una URL preview cada vez que pusheás → ahí probás los cambios.
+
+Cuando lo validás, hacés:
+
+git checkout main
+git merge develop
+git push origin main
+
+Eso dispara el deploy en producción.
+
+🔹 Flujo después de un merge a main
+
+Estás en main después del merge:
+
+git checkout main
+git merge develop
+git push origin main
+
+Ahora tenés que volver a develop para seguir laburando:
+
+git checkout develop
+
+Importante 👉 como main ahora puede tener commits nuevos (por ejemplo, el merge con correcciones), conviene mantener develop actualizado con main.
+
+Lo podés hacer así:
+
+git checkout develop
+git merge main
+git push origin develop
+
+🔹 Esto asegura que develop tiene todo lo último de producción, y a partir de ahí seguís agregando features.
+
+🔹 Resumen de comandos
+
+Cada vez que cerrás una versión:
+
+# Estás en develop
+git checkout main
+git merge develop
+git push origin main   # 🚀 producción
+
+# Volvés a develop
+git checkout develop
+git merge main         # 🔄 mantener develop actualizado
+git push origin develop
+
+
+Y listo, seguís trabajando en develop.

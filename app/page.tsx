@@ -2,7 +2,7 @@
 
 import {
   Search, Camera, MoreVertical, Archive, Phone, Users,
-  MessageCircle, Plus, ArrowLeft, Video, Smile, Paperclip, Mic, SendHorizontal 
+  MessageCircle, Plus, ArrowLeft, Video, Smile, Paperclip, Mic, SendHorizontal ,CheckCheck, Check
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 
 type Message = {
   id: number
@@ -41,6 +41,12 @@ export default function WhatsAppInterface() {
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null)
   const [chats, setChats] = useState<Chat[]>([])
   const [inputValue, setInputValue] = useState("")
+  const messagesRef = useRef<HTMLDivElement | null>(null)
+  const [kbOffset, setKbOffset] = useState(0)
+  const [composeAsMe, setComposeAsMe] = useState(true) // true = envío yo, false = mensaje “del otro”
+  const [selectedMsg, setSelectedMsg] = useState<{ chatId: number; msgId: number } | null>(null)
+  const [editingTarget, setEditingTarget] = useState<{ chatId: number; msgId: number } | null>(null)  
+  const longPressTimeout = useRef<number | null>(null)
 
   // 🔹 Cargar desde localStorage al iniciar
   useEffect(() => {
@@ -68,6 +74,25 @@ export default function WhatsAppInterface() {
     localStorage.setItem("chats", JSON.stringify(chats))
   }, [chats])
 
+  useEffect(() => {
+    const vv = window.visualViewport
+    if (!vv) return
+    const onResize = () => {
+      const offset = Math.max(0, window.innerHeight - vv.height)
+      setKbOffset(offset)
+      if (messagesRef.current) {
+        messagesRef.current.scrollTop = messagesRef.current.scrollHeight
+      }
+    }
+    vv.addEventListener("resize", onResize)
+    vv.addEventListener("scroll", onResize)
+    onResize()
+    return () => {
+      vv.removeEventListener("resize", onResize)
+      vv.removeEventListener("scroll", onResize)
+    }
+  }, [])
+
   // ✅ Crear un nuevo chat
   const createChat = (name: string) => {
     const newChat: Chat = {
@@ -87,7 +112,7 @@ export default function WhatsAppInterface() {
   
 
   // ✅ Enviar mensaje en un chat
-  const sendMessage = (chatId: number, text: string) => {
+  const sendMessage = (chatId: number, text: string, asMe: boolean) => {
     const now = new Date()
     setChats(prev =>
       prev.map(chat =>
@@ -101,14 +126,17 @@ export default function WhatsAppInterface() {
                 text,
                 time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
                 timestamp: now.getTime(),
-                isSent: true,
-                isRead: true
+                isSent: asMe,
+                isRead: asMe ? true : undefined, // solo marco leído si lo “mandé yo”
               }
             ]
           }
           : chat
       )
     )
+    setInputValue("")
+    setEditingTarget(null)
+    setSelectedMsg(null)
   }
 
   const handleChatClick = (chat: Chat) => {
@@ -122,6 +150,63 @@ export default function WhatsAppInterface() {
     setSelectedChat(null)
   }
 
+  const startSelectLongPress = (chatId: number, msgId: number) => {
+    if (longPressTimeout.current) window.clearTimeout(longPressTimeout.current)
+    longPressTimeout.current = window.setTimeout(() => {
+      setSelectedMsg({ chatId, msgId })
+      setEditingTarget(null) // si estaba editando, salir
+    }, 450)
+  }
+  const cancelLongPress = () => {
+    if (longPressTimeout.current) {
+      window.clearTimeout(longPressTimeout.current)
+      longPressTimeout.current = null
+    }
+  }
+  
+  const deleteSelectedMessage = () => {
+    if (!selectedMsg) return
+    setChats(prev =>
+      prev.map(c =>
+        c.id === selectedMsg.chatId
+          ? { ...c, messages: c.messages.filter(m => m.id !== selectedMsg.msgId) }
+          : c
+      )
+    )
+    setSelectedMsg(null)
+    setEditingTarget(null)
+  }
+  
+  const beginEditSelectedMessage = () => {
+    if (!selectedMsg) return
+    const chat = chats.find(c => c.id === selectedMsg.chatId)
+    const msg = chat?.messages.find(m => m.id === selectedMsg.msgId)
+    if (!msg) return
+    setInputValue(msg.text)
+    setEditingTarget(selectedMsg)
+  }
+  
+  const saveEditedMessage = () => {
+    if (!editingTarget) return
+    const newText = inputValue.trim()
+    if (!newText) return
+    setChats(prev =>
+      prev.map(c =>
+        c.id === editingTarget.chatId
+          ? {
+              ...c,
+              messages: c.messages.map(m =>
+                m.id === editingTarget.msgId ? { ...m, text: newText } : m
+              ),
+            }
+          : c
+      )
+    )
+    setInputValue("")
+    setEditingTarget(null)
+    setSelectedMsg(null)
+  }
+
   // ==================================
   // 🔹 Vista del chat seleccionado
   // ==================================
@@ -129,12 +214,16 @@ export default function WhatsAppInterface() {
     const updatedSelected = chats.find(c => c.id === selectedChat.id) || selectedChat
 
     return (
-      <div className="bg-red-900/50 text-white h-screen w-screen flex flex-col">
+      <div className="bg-red-900/50 text-white h-[100dvh] w-screen flex flex-col overflow-hidden">
 
         {/* Chat Header */}
         <div className="flex items-center gap-3 px-4 py-3 bg-[#0b1014]">
           <Button variant="ghost" size="sm" className="p-0 h-auto text-white hover:bg-transparent"
-            onClick={handleBackToChats}>
+            onClick={() => {
+              handleBackToChats()
+              setSelectedMsg(null)
+              setEditingTarget(null)
+            }}>
             <ArrowLeft size={24} />
           </Button>
           <Avatar className="w-10 h-10">
@@ -159,38 +248,106 @@ export default function WhatsAppInterface() {
                 <DropdownMenuItem>Info del contacto</DropdownMenuItem>
                 <DropdownMenuItem>Archivar chat</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => deleteChat(updatedSelected.id)}>Eliminar chat</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setComposeAsMe(v => !v)}>
+                  {composeAsMe ? "Recibir mensaje" : "Enviar mensaje"}
+                </DropdownMenuItem>
+                <div className="h-px my-1 bg-gray-700/50" />
+                <DropdownMenuItem
+                  disabled={!selectedMsg}
+                  onClick={beginEditSelectedMessage}
+                >
+                  Editar mensaje
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  disabled={!selectedMsg}
+                  onClick={deleteSelectedMessage}
+                >
+                  Borrar mensaje
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         </div>
 
-        {/* Messages */}
-        <div className="flex-1 px-4 py-4 space-y-2 min-h-[calc(100vh-200px)] overflow-y-auto">
-          {updatedSelected.messages.map((m) => (
-            <div key={m.id} className={`flex ${m.isSent ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[80%] px-3 py-2 rounded-lg ${m.isSent ? "bg-[#134c36] text-white" : "bg-gray-700 text-white"
-                }`}>
-                <p className="text-sm leading-relaxed">{m.text}</p>
-                <div className="flex items-center justify-end gap-1 mt-1">
-                  <span className="text-xs text-gray-300">{m.time}</span>
-                  {m.isSent && m.isRead && <div className="text-blue-400 text-xs">✓✓</div>}
+        {/* Messages (scrolleable) */}
+        <div
+          ref={messagesRef}
+          className="flex-1 overflow-y-auto px-4 py-4 space-y-2"
+          style={{ paddingBottom: kbOffset + 88, scrollPaddingBottom: 88 }}
+          onClick={(e) => {
+            // si hacés tap en el fondo (no sobre un bubble), des-selecciona
+            if (e.target === e.currentTarget) {
+              setSelectedMsg(null)
+              // no salgo de edición para evitar perder texto; quitá la línea de abajo si querés desactivar edición también
+              // setEditingTarget(null)
+            }
+          }}
+        >
+          {updatedSelected.messages.map((m) => {
+            const isSelected =
+              selectedMsg?.chatId === updatedSelected.id && selectedMsg?.msgId === m.id
+
+              return (
+                <div key={m.id} className={`flex ${m.isSent ? "justify-end" : "justify-start"}`}>
+                  <div
+                    className={`max-w-[80%] px-3 py-2 rounded-lg transition-colors ${
+                      m.isSent
+                        ? isSelected
+                          ? "bg-[#176848] outline outline-2 outline-[#21c063]"
+                          : "bg-[#134c36]"
+                        : isSelected
+                        ? "bg-[#3b4751] outline outline-2 outline-[#21c063]"
+                        : "bg-gray-700"
+                    } text-white`}
+                    // Long-press para seleccionar
+                    onPointerDown={() => startSelectLongPress(updatedSelected.id, m.id)}
+                    onPointerUp={cancelLongPress}
+                    onPointerCancel={cancelLongPress}
+                    onPointerLeave={cancelLongPress}
+                  >
+                    <p className="text-sm leading-relaxed">{m.text}</p>
+                    <div className="flex items-center justify-end gap-1 mt-1">
+                      <span className="text-xs text-gray-300">{m.time}</span>
+                      {m.isSent && m.isRead && <div className="text-blue-400 text-xs"> <CheckCheck size={16} /> </div>}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              )
+          })}
         </div>
 
+
         {/* Message Input */}
-        <div className="px-4 py-3">
+        <div className="sticky bottom-0 px-4 py-3">
           <div className="flex items-center gap-2">
             <div className="flex-1 relative">
-              <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
-              </div>
               <input
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  placeholder="Mensaje"
-                  className="bg-[#22292c] py-2.5 pl-4 border border-gray-700 text-white rounded-full w-full outline-none"
+                  onFocus={() => {
+                    if (messagesRef.current) {
+                      messagesRef.current.scrollTop = messagesRef.current.scrollHeight
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault()
+                      if (inputValue.trim()) {
+                        if (editingTarget) {
+                          saveEditedMessage()
+                        } else {
+                          sendMessage(updatedSelected.id, inputValue.trim(), composeAsMe)
+                        }
+                        requestAnimationFrame(() => {
+                          if (messagesRef.current) {
+                            messagesRef.current.scrollTop = messagesRef.current.scrollHeight
+                          }
+                        })
+                      }
+                    }
+                  }}
+                  placeholder={editingTarget ? "Editar mensaje…" : "Mensaje"}
+                  className="bg-[#22292c] py-2.5 pl-4 pr-20 border border-gray-700 text-white rounded-full w-full outline-none"
                 />
 
               <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
@@ -202,17 +359,35 @@ export default function WhatsAppInterface() {
                 </Button>
               </div>
             </div>
-            <Button
-              onClick={() => {
-                if (inputValue.trim()) {
-                  sendMessage(updatedSelected.id, inputValue.trim())
-                  setInputValue("")
-                }
-              }}
-              className="bg-[#21c063] hover:bg-green-600 w-12 h-12 rounded-full p-0"
-            >
-              <SendHorizontal size={64} />
-            </Button>
+
+            {editingTarget ? (
+              <Button
+                onClick={saveEditedMessage}
+                className="bg-[#21c063] hover:bg-green-600 w-12 h-12 rounded-full p-0"
+                aria-label="Guardar edición"
+              >
+                <Check size={24} />
+              </Button>
+            ) : (
+              <Button
+                onClick={() => {
+                  if (inputValue.trim()) {
+                    sendMessage(updatedSelected.id, inputValue.trim(), composeAsMe)
+                    setInputValue("")
+                    requestAnimationFrame(() => {
+                      if (messagesRef.current) {
+                        messagesRef.current.scrollTop = messagesRef.current.scrollHeight
+                      }
+                    })
+                  }
+                }}
+                className="bg-[#21c063] hover:bg-green-600 w-12 h-12 rounded-full p-0"
+                aria-label="Enviar"
+              >
+                <SendHorizontal size={24} />
+              </Button>
+            )}
+              
           </div>
         </div>
       </div>
@@ -319,8 +494,8 @@ export default function WhatsAppInterface() {
                   <div className="flex items-center gap-2">
                     {chat.messages.length > 0 && chat.messages[chat.messages.length - 1].isSent && (
                       chat.messages[chat.messages.length - 1].isRead
-                        ? <div className="text-blue-400 text-xs">✓✓</div>
-                        : <div className="text-gray-400 text-xs">✓✓</div>
+                        ? <div className="text-blue-400 text-xs"> <CheckCheck size={16} /> </div>
+                        : <div className="text-gray-400 text-xs"> <CheckCheck size={16} /> </div>
                     )}
                     {chat.hasSticker && <div className="text-gray-400 text-xs">🎭</div>}
                     {chat.isOfficial && <div className="text-gray-400 text-xs">📢</div>}
