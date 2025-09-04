@@ -2,7 +2,7 @@
 
 import {
   Search, Camera, MoreVertical, Archive, Phone, Users,
-  MessageCircle, Plus, ArrowLeft, Video, Smile, Paperclip, Mic, SendHorizontal ,CheckCheck, Check
+  MessageCircle, Plus, ArrowLeft, Video, Smile, Paperclip, Mic, SendHorizontal, CheckCheck, Check
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -37,7 +37,6 @@ type Chat = {
 }
 
 export default function WhatsAppInterface() {
-  const [currentView, setCurrentView] = useState<"chatList" | "chat">("chatList")
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null)
   const [chats, setChats] = useState<Chat[]>([])
   const [inputValue, setInputValue] = useState("")
@@ -45,8 +44,28 @@ export default function WhatsAppInterface() {
   const [kbOffset, setKbOffset] = useState(0)
   const [composeAsMe, setComposeAsMe] = useState(true) // true = envío yo, false = mensaje “del otro”
   const [selectedMsg, setSelectedMsg] = useState<{ chatId: number; msgId: number } | null>(null)
-  const [editingTarget, setEditingTarget] = useState<{ chatId: number; msgId: number } | null>(null)  
+  const [editingTarget, setEditingTarget] = useState<{ chatId: number; msgId: number } | null>(null)
   const longPressTimeout = useRef<number | null>(null)
+
+  // === Avatar Cropper modal ===
+  const [cropperOpen, setCropperOpen] = useState(false)
+  const [cropSrc, setCropSrc] = useState<string | null>(null)
+  const [cropW, setCropW] = useState(0)
+  const [cropH, setCropH] = useState(0)
+  const [cropX, setCropX] = useState(0)
+  const [cropY, setCropY] = useState(0)
+  const [cropSize, setCropSize] = useState(100) // tamaño del recorte cuadrado
+
+  // Para el formulario de "nuevo chat"
+  const [newChatName, setNewChatName] = useState("")
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+
+  // === Image Viewer modal (para ver en grande) ===
+  const [viewerOpen, setViewerOpen] = useState(false)
+  const [viewerSrc, setViewerSrc] = useState<string | null>(null)
+
+  type View = "chatList" | "chat" | "newChat"
+  const [currentView, setCurrentView] = useState<View>("chatList")
 
   // 🔹 Cargar desde localStorage al iniciar
   useEffect(() => {
@@ -93,6 +112,7 @@ export default function WhatsAppInterface() {
     }
   }, [])
 
+
   // ✅ Crear un nuevo chat
   const createChat = (name: string) => {
     const newChat: Chat = {
@@ -104,12 +124,35 @@ export default function WhatsAppInterface() {
     setChats(prev => [...prev, newChat])
   }
 
+  // helper: crear chat y abrirlo
+  const createChatAndOpen = (name: string) => {
+    const trimmed = name.trim()
+    if (!trimmed) return
+
+    const newChat: Chat = {
+      id: Date.now(),
+      name: trimmed,
+      avatar: avatarPreview || "/placeholder.svg",
+      messages: []
+    }
+
+    setChats(prev => {
+      const updated = [...prev, newChat]
+      return updated
+    })
+
+    setSelectedChat(newChat)
+    setCurrentView("chat")
+    setNewChatName("")
+    setAvatarPreview(null)
+  }
+
   const deleteChat = (chatId: number) => {
     setChats(prev => prev.filter(chat => chat.id !== chatId))
     setCurrentView("chatList")
     setSelectedChat(null)
   }
-  
+
 
   // ✅ Enviar mensaje en un chat
   const sendMessage = (chatId: number, text: string, asMe: boolean) => {
@@ -163,7 +206,7 @@ export default function WhatsAppInterface() {
       longPressTimeout.current = null
     }
   }
-  
+
   const deleteSelectedMessage = () => {
     if (!selectedMsg) return
     setChats(prev =>
@@ -176,7 +219,7 @@ export default function WhatsAppInterface() {
     setSelectedMsg(null)
     setEditingTarget(null)
   }
-  
+
   const beginEditSelectedMessage = () => {
     if (!selectedMsg) return
     const chat = chats.find(c => c.id === selectedMsg.chatId)
@@ -185,7 +228,7 @@ export default function WhatsAppInterface() {
     setInputValue(msg.text)
     setEditingTarget(selectedMsg)
   }
-  
+
   const saveEditedMessage = () => {
     if (!editingTarget) return
     const newText = inputValue.trim()
@@ -194,11 +237,11 @@ export default function WhatsAppInterface() {
       prev.map(c =>
         c.id === editingTarget.chatId
           ? {
-              ...c,
-              messages: c.messages.map(m =>
-                m.id === editingTarget.msgId ? { ...m, text: newText } : m
-              ),
-            }
+            ...c,
+            messages: c.messages.map(m =>
+              m.id === editingTarget.msgId ? { ...m, text: newText } : m
+            ),
+          }
           : c
       )
     )
@@ -206,6 +249,245 @@ export default function WhatsAppInterface() {
     setEditingTarget(null)
     setSelectedMsg(null)
   }
+
+  async function fileToDataURL(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+  }
+
+  function supportsWebP(): boolean {
+    try {
+      const c = document.createElement("canvas")
+      return c.toDataURL("image/webp").startsWith("data:image/webp")
+    } catch {
+      return false
+    }
+  }
+
+  /**
+ * Recorta un CUADRADO desde la imagen fuente y exporta comprimido.
+ * - srcDataURL: dataURL de la imagen original
+ * - crop: {x, y, size} en coordenadas de la imagen original
+ * - exportSize: tamaño final (ej 256 => 256x256)
+ * - preferWebP: si true, intenta webp y cae a jpeg si no hay soporte
+ */
+  async function compressDataURL(srcDataURL: string, crop: { x: number; y: number; size: number }, exportSize = 256, preferWebP = true, quality = 0.8): Promise<string> {
+    const img = new Image()
+    img.src = srcDataURL
+    await img.decode()
+
+    const { x, y, size } = crop
+
+    const canvas = document.createElement("canvas")
+    canvas.width = exportSize
+    canvas.height = exportSize
+    const ctx = canvas.getContext("2d")!
+
+    // dibujar el recorte cuadrado escalado al canvas
+    ctx.drawImage(img, x, y, size, size, 0, 0, exportSize, exportSize)
+
+    const useWebP = preferWebP && supportsWebP()
+    const mime = useWebP ? "image/webp" : "image/jpeg"
+    return canvas.toDataURL(mime, quality)
+  }
+
+  // ==================================
+  // 🔹 Vista: crear nuevo chat
+  // ==================================
+  if (currentView === "newChat") {
+    return (
+      <div className="bg-[#0b1014] text-white h-[100dvh] w-screen flex flex-col">
+        {/* Header */}
+        <div className="flex items-center gap-3 px-4 py-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="p-0 h-auto text-white hover:bg-transparent"
+            onClick={() => setCurrentView("chatList")}
+          >
+            <ArrowLeft size={24} />
+          </Button>
+          <h1 className="text-lg font-medium">Nuevo chat</h1>
+        </div>
+
+        {/* Form */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            createChatAndOpen(newChatName)
+          }}
+          className="px-4 mt-4 space-y-4"
+        >
+
+          <div className="space-y-2">
+            <label className="block text-sm text-gray-300">Avatar (opcional)</label>
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full overflow-hidden bg-[#22292c] border border-gray-700">
+                {avatarPreview ? (
+                  <img src={avatarPreview} alt="preview" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">
+                    Sin foto
+                  </div>
+                )}
+              </div>
+
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0]
+                  if (!file) return
+                  const raw = await fileToDataURL(file)
+                  // setear límites y valores iniciales del cropper
+                  const img = new Image()
+                  img.src = raw
+                  await img.decode()
+                  const side = Math.min(img.width, img.height)
+                  setCropSrc(raw)
+                  setCropW(img.width)
+                  setCropH(img.height)
+                  setCropSize(Math.floor(side * 0.8)) // arranca con 80% del lado corto
+                  setCropX(Math.floor((img.width - side * 0.8) / 2))
+                  setCropY(Math.floor((img.height - side * 0.8) / 2))
+                  setCropperOpen(true)
+                }}
+                className="text-sm"
+              />
+
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm text-gray-300 mb-2">Nombre del chat</label>
+            <Input
+              value={newChatName}
+              onChange={(e) => setNewChatName(e.target.value)}
+              placeholder="Ej: Ideas, Tareas, Compras…"
+              className="bg-[#22292c] border-gray-700 text-white"
+              autoFocus
+            />
+          </div>
+
+          <div className="flex justify-end">
+            <Button
+              type="submit"
+              className="bg-[#21c063] hover:bg-green-600"
+              disabled={!newChatName.trim()}
+            >
+              Guardar
+            </Button>
+          </div>
+        </form>
+
+        {cropperOpen && cropSrc && (
+        <div className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-4">
+          <div className="bg-[#0b1014] text-white w-full max-w-md rounded-xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-base font-medium">Recortar avatar</h2>
+              <button onClick={() => setCropperOpen(false)} className="text-gray-400 hover:text-white">✕</button>
+            </div>
+      
+            {/* Preview con rectángulo de recorte (solo ilustrativo) */}
+            <div className="relative bg-[#111] rounded-md overflow-hidden aspect-square mb-3">
+              {/* imagen completa ajustada a contenedor */}
+              <img src={cropSrc} alt="to-crop" className="w-full h-full object-contain" />
+              {/* Overlay para marcar el recorte: lo representamos visualmente */}
+              <div
+                className="absolute border-2 border-[#21c063]/80"
+                style={{
+                  // convertimos recorte (en coords reales) a coords del contenedor
+                  left: `${(cropX / cropW) * 100}%`,
+                  top: `${(cropY / cropH) * 100}%`,
+                  width: `${(cropSize / cropW) * 100}%`,
+                  height: `${(cropSize / cropH) * 100}%`,
+                }}
+              />
+            </div>
+      
+            {/* Sliders */}
+            <div className="space-y-3">
+              <div>
+                <label className="text-sm text-gray-300">Posición X</label>
+                <input
+                  type="range"
+                  min={0}
+                  max={Math.max(0, cropW - cropSize)}
+                  value={cropX}
+                  onChange={(e) => setCropX(parseInt(e.target.value))}
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-300">Posición Y</label>
+                <input
+                  type="range"
+                  min={0}
+                  max={Math.max(0, cropH - cropSize)}
+                  value={cropY}
+                  onChange={(e) => setCropY(parseInt(e.target.value))}
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-300">Tamaño</label>
+                <input
+                  type="range"
+                  min={50}
+                  max={Math.min(cropW, cropH)}
+                  value={cropSize}
+                  onChange={(e) => {
+                    const next = parseInt(e.target.value)
+                    setCropSize(next)
+                    // clamp X/Y para que no se salga
+                    setCropX((x) => Math.min(x, Math.max(0, cropW - next)))
+                    setCropY((y) => Math.min(y, Math.max(0, cropH - next)))
+                  }}
+                  className="w-full"
+                />
+              </div>
+            </div>
+      
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                onClick={() => setCropperOpen(false)}
+                className="px-3 py-2 rounded-md bg-gray-700 hover:bg-gray-600"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={async () => {
+                  if (!cropSrc) return
+                  const dataURL = await compressDataURL(
+                    cropSrc,
+                    { x: cropX, y: cropY, size: cropSize },
+                    256, // exportSize
+                    true, // preferWebP
+                    0.8   // quality
+                  )
+                  setAvatarPreview(dataURL) // 👈 usarás este valor al crear el chat
+                  setCropperOpen(false)
+                }}
+                className="px-3 py-2 rounded-md bg-[#21c063] hover:bg-green-600"
+              >
+                Recortar y guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      </div>
+    )
+
+  }
+
+
+
 
   // ==================================
   // 🔹 Vista del chat seleccionado
@@ -226,7 +508,10 @@ export default function WhatsAppInterface() {
             }}>
             <ArrowLeft size={24} />
           </Button>
-          <Avatar className="w-10 h-10">
+          <Avatar className="w-10 h-10 cursor-pointer" onClick={() => {
+            setViewerSrc(updatedSelected.avatar || "/placeholder.svg")
+            setViewerOpen(true)
+          }}>
             <AvatarImage src={updatedSelected.avatar || "/placeholder.svg"} alt={updatedSelected.name} />
             <AvatarFallback className="bg-gray-700 text-white">
               {updatedSelected.name.charAt(0)}
@@ -287,32 +572,31 @@ export default function WhatsAppInterface() {
             const isSelected =
               selectedMsg?.chatId === updatedSelected.id && selectedMsg?.msgId === m.id
 
-              return (
-                <div key={m.id} className={`flex ${m.isSent ? "justify-end" : "justify-start"}`}>
-                  <div
-                    className={`max-w-[80%] px-3 py-2 rounded-lg transition-colors ${
-                      m.isSent
-                        ? isSelected
-                          ? "bg-[#176848] outline outline-2 outline-[#21c063]"
-                          : "bg-[#134c36]"
-                        : isSelected
+            return (
+              <div key={m.id} className={`flex ${m.isSent ? "justify-end" : "justify-start"}`}>
+                <div
+                  className={`max-w-[80%] px-3 py-2 rounded-lg transition-colors ${m.isSent
+                      ? isSelected
+                        ? "bg-[#176848] outline outline-2 outline-[#21c063]"
+                        : "bg-[#134c36]"
+                      : isSelected
                         ? "bg-[#3b4751] outline outline-2 outline-[#21c063]"
                         : "bg-gray-700"
                     } text-white`}
-                    // Long-press para seleccionar
-                    onPointerDown={() => startSelectLongPress(updatedSelected.id, m.id)}
-                    onPointerUp={cancelLongPress}
-                    onPointerCancel={cancelLongPress}
-                    onPointerLeave={cancelLongPress}
-                  >
-                    <p className="text-sm leading-relaxed">{m.text}</p>
-                    <div className="flex items-center justify-end gap-1 mt-1">
-                      <span className="text-xs text-gray-300">{m.time}</span>
-                      {m.isSent && m.isRead && <div className="text-blue-400 text-xs"> <CheckCheck size={16} /> </div>}
-                    </div>
+                  // Long-press para seleccionar
+                  onPointerDown={() => startSelectLongPress(updatedSelected.id, m.id)}
+                  onPointerUp={cancelLongPress}
+                  onPointerCancel={cancelLongPress}
+                  onPointerLeave={cancelLongPress}
+                >
+                  <p className="text-sm leading-relaxed">{m.text}</p>
+                  <div className="flex items-center justify-end gap-1 mt-1">
+                    <span className="text-xs text-gray-300">{m.time}</span>
+                    {m.isSent && m.isRead && <div className="text-blue-400 text-xs"> <CheckCheck size={16} /> </div>}
                   </div>
                 </div>
-              )
+              </div>
+            )
           })}
         </div>
 
@@ -322,33 +606,33 @@ export default function WhatsAppInterface() {
           <div className="flex items-center gap-2">
             <div className="flex-1 relative">
               <input
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onFocus={() => {
-                    if (messagesRef.current) {
-                      messagesRef.current.scrollTop = messagesRef.current.scrollHeight
-                    }
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault()
-                      if (inputValue.trim()) {
-                        if (editingTarget) {
-                          saveEditedMessage()
-                        } else {
-                          sendMessage(updatedSelected.id, inputValue.trim(), composeAsMe)
-                        }
-                        requestAnimationFrame(() => {
-                          if (messagesRef.current) {
-                            messagesRef.current.scrollTop = messagesRef.current.scrollHeight
-                          }
-                        })
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onFocus={() => {
+                  if (messagesRef.current) {
+                    messagesRef.current.scrollTop = messagesRef.current.scrollHeight
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault()
+                    if (inputValue.trim()) {
+                      if (editingTarget) {
+                        saveEditedMessage()
+                      } else {
+                        sendMessage(updatedSelected.id, inputValue.trim(), composeAsMe)
                       }
+                      requestAnimationFrame(() => {
+                        if (messagesRef.current) {
+                          messagesRef.current.scrollTop = messagesRef.current.scrollHeight
+                        }
+                      })
                     }
-                  }}
-                  placeholder={editingTarget ? "Editar mensaje…" : "Mensaje"}
-                  className="bg-[#22292c] py-2.5 pl-4 pr-20 border border-gray-700 text-white rounded-full w-full outline-none"
-                />
+                  }
+                }}
+                placeholder={editingTarget ? "Editar mensaje…" : "Mensaje"}
+                className="bg-[#22292c] py-2.5 pl-4 pr-20 border border-gray-700 text-white rounded-full w-full outline-none"
+              />
 
               <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
                 <Button variant="ghost" size="sm" className="p-1 text-gray-400 hover:bg-transparent">
@@ -387,9 +671,27 @@ export default function WhatsAppInterface() {
                 <SendHorizontal size={24} />
               </Button>
             )}
-              
+
           </div>
         </div>
+
+        {/* Modal viewer */}
+        {viewerOpen && viewerSrc && (
+          <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4" onClick={() => setViewerOpen(false)}>
+            <img
+              src={viewerSrc}
+              alt="avatar"
+              className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <button
+              onClick={() => setViewerOpen(false)}
+              className="absolute top-4 right-4 text-white/90 bg-black/40 rounded-full px-3 py-1"
+            >
+              Cerrar
+            </button>
+          </div>
+        )}
       </div>
     )
   }
@@ -474,10 +776,15 @@ export default function WhatsAppInterface() {
               <div key={chat.id}
                 className="flex items-center gap-3 px-4 py-3 hover:bg-gray-800 transition-colors cursor-pointer"
                 onClick={() => handleChatClick(chat)}>
-                <Avatar className="w-12 h-12">
+                <Avatar className="w-12 h-12 cursor-pointer" onClick={(e) => {
+                  e.stopPropagation()
+                  setViewerSrc(chat.avatar || "/placeholder.svg")
+                  setViewerOpen(true)
+                }}>
                   <AvatarImage src={chat.avatar || "/placeholder.svg"} alt={chat.name} />
                   <AvatarFallback className="bg-gray-700 text-white">{chat.name.charAt(0)}</AvatarFallback>
                 </Avatar>
+
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
                     <h3 className="font-medium text-white truncate">{chat.name}</h3>
@@ -548,14 +855,35 @@ export default function WhatsAppInterface() {
       <div className="fixed bottom-16 right-4 md:bottom-20">
         <Button
           className="bg-[#21c063] hover:bg-green-600 w-14 h-14 rounded-full shadow-lg"
-          onClick={() => {
-            const name = prompt("Nombre del nuevo chat")
-            if (name) createChat(name)
-          }}
+          onClick={() => setCurrentView("newChat")}
         >
           <Plus size={24} />
         </Button>
       </div>
+
+      {/* Modal viewer */}
+      {viewerOpen && viewerSrc && (
+        <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4" onClick={() => setViewerOpen(false)}>
+          <img
+            src={viewerSrc}
+            alt="avatar"
+            className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+          <button
+            onClick={() => setViewerOpen(false)}
+            className="absolute top-4 right-4 text-white/90 bg-black/40 rounded-full px-3 py-1"
+          >
+            Cerrar
+          </button>
+        </div>
+      )}
     </div>
+
+    
   )
+
+  
 }
+
+

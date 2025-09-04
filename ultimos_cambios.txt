@@ -4,3 +4,62 @@ switch entre enviar y recibir mensajes
 mantener presionado el mensaje para activar modo seleccion
 en modo seleccion se habilita editar mensaje
 en modo seleccion se habilita eliminar mensaje
+
+03/09
+pagina para crear nuevo chat (nombre)
+
+04/09
+pagina para crear nuevo chat (imagen de perfil), permite seleccionar una imagen del dispositivo
+modal para recortar la imagen 
+compresor a webp, guardar imagen en localstorage 
+Usuario elige imagen original en el <input type="file">.
+Abrís el modal de recorte (tu cropper).
+Al confirmar el recorte, tomás ese recorte (x, y, size) y:
+Lo dibujás en un <canvas> cuadrado (ej: 256×256).
+Lo exportás como WebP (canvas.toDataURL("image/webp", calidad)) y, si el browser no soporta WebP, caés a JPEG.
+El resultado es un Data URL (string data:image/...;base64,...).
+Guardás ese Data URL en tu estado avatarPreview y al crear el chat lo guardás en el objeto del chat.
+Tu useEffect que persiste chats ya lo manda a localStorage.
+
+proximos cambios
+pagina para editar chat (imagen de perfil y nombre)
+
+en menu "..." pagina principal:
+- ver tema personalizacion de colores (modo claro y modo oscuro)
+- ver tema de importar y exportar las notas como archivo
+- ver tema categorias
+- ver tema archivados
+- ver tema modo android/ios
+- ver tema cambiar el nombre a "WhatsApp"
+- agregar una seccion de "about"
+
+
+varios:
+ver lo del "tail" de los mensajes, cuando es el primer mensaje de la "cadena"
+ver tema "buscador" en pagina principal
+ver que poner en los menus de abajo
+ver poner algo en la carga cuando abre la app, y spinner cuando carga los chats
+chats fijados
+en chats, indicador de "hoy", "ayer", etc
+
+
+en menu "..." chats:
+- abrir settings
+- buscador
+- vaciar chat (borra todos los mensajes)
+
+menus de configurar chat:
+- boton editar (abre pagina editar con input editar foto, editar nombre, editar descripcion), otros botones
+- seccion descripcion
+- seccion de archivos (a futuro)
+- seccion opciones:
+    - personalizar fondo del chat
+    - switch para agregar o no "en linea" al chat
+    - editar categoria del chat
+    - fijar chat
+    - privacidad del chat
+    - programar mensaje
+- seccion final:
+    - agregar a favoritos
+    - eliminar chat en rojo
+
