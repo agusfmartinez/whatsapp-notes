@@ -21,8 +21,13 @@ El resultado es un Data URL (string data:image/...;base64,...).
 Guardás ese Data URL en tu estado avatarPreview y al crear el chat lo guardás en el objeto del chat.
 Tu useEffect que persiste chats ya lo manda a localStorage.
 
-proximos cambios
+08/09
+refactorizacion en componentes
 pagina para editar chat (imagen de perfil y nombre)
+al eliminar un chat, modal para confirmar y al aceptar que vuelva a la lista de chats
+
+proximos cambios
+
 
 en menu "..." pagina principal:
 - ver tema personalizacion de colores (modo claro y modo oscuro)
@@ -59,6 +64,7 @@ menus de configurar chat:
     - fijar chat
     - privacidad del chat
     - programar mensaje
+    - switch para activar o no el visto, programar tiempo de visto
 - seccion final:
     - agregar a favoritos
     - eliminar chat en rojo
