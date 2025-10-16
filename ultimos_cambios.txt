@@ -46,6 +46,9 @@ ver que poner en los menus de abajo
 ver poner algo en la carga cuando abre la app, y spinner cuando carga los chats
 chats fijados
 en chats, indicador de "hoy", "ayer", etc
+guardar ultimo chat abierto
+activar/desactivar visto, setear tiempo
+chats con candado y clave (modal)
 
 
 en menu "..." chats:

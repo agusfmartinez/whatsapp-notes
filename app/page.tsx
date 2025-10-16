@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useReducer, useEffect, useMemo, useState } from "react"
 import { Camera, MoreVertical, Archive } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -22,7 +22,6 @@ import AvatarCropperModal from "@/components/modals/AvatarCropperModal"
 import ImageViewerModal from "@/components/modals/ImageViewerModal"
 import ConfirmDeleteChatModal from "@/components/modals/ConfirmDeleteChatModal"
 
-
 // Hooks
 import { useChats } from "@/hooks/useChats"
 import { useKeyboardOffset } from "@/hooks/useKeyboardOffset"
@@ -33,249 +32,223 @@ import { fileToDataURL, compressDataURL } from "@/lib/images"
 
 // Types
 import { Chat } from "@/types/chat"
-
-type View = "chatList" | "chat" | "newChat" | "editChat"
+import { chatUiReducer, initialState, ChatUIAction } from "@/ui/reducers/chatUi"
 
 export default function WhatsAppInterface() {
-  const [selectedChat, setSelectedChat] = useState<Chat | null>(null)
+  // Estado global de UI usando reducer
+  const [uiState, dispatch] = useReducer(chatUiReducer, initialState)
+  
+  // Estado local para el input del chat (no forma parte del estado global)
   const [inputValue, setInputValue] = useState("")
-  const [composeAsMe, setComposeAsMe] = useState(true)
-  const [selectedMsg, setSelectedMsg] = useState<{ chatId: number; msgId: number } | null>(null)
-  const [editingTarget, setEditingTarget] = useState<{ chatId: number; msgId: number } | null>(null)
-  const [currentView, setCurrentView] = useState<View>("chatList")
-
-  // Avatar Cropper modal
-  const [cropperOpen, setCropperOpen] = useState(false)
-  const [cropSrc, setCropSrc] = useState<string | null>(null)
-  const [cropW, setCropW] = useState(0)
-  const [cropH, setCropH] = useState(0)
-  const [cropX, setCropX] = useState(0)
-  const [cropY, setCropY] = useState(0)
-  const [cropSize, setCropSize] = useState(100)
-
-  // Para el formulario de "nuevo chat"
-  const [newChatName, setNewChatName] = useState("")
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
-
-  // Para el formulario de "editar chat"
-  const [editChatName, setEditChatName] = useState("")
-  const [editAvatarPreview, setEditAvatarPreview] = useState<string | null>(null)
-
-  // Image Viewer modal
-  const [viewerOpen, setViewerOpen] = useState(false)
-  const [viewerSrc, setViewerSrc] = useState<string | null>(null)
 
   // Hooks
   const { chats, createChat, deleteChat, sendMessage, deleteMessage, editMessage, updateChat } = useChats()
   const kbOffset = useKeyboardOffset()
   const { startLongPress, cancelLongPress } = useLongPress()
 
-  // Modal Confirm
-  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
-  const [chatIdToDelete, setChatIdToDelete] = useState<number | null>(null)
 
+  // Obtener el chat seleccionado actual
+  const selectedChat = useMemo(() => {
+    if (!uiState.selectedChatId) return null
+    return chats.find(c => c.id === uiState.selectedChatId) || null
+  }, [chats, uiState.selectedChatId])
 
-  // Sincronizar selectedChat cuando chats cambie
-  useEffect(() => {
-    if (selectedChat && chats.length > 0) {
-      const updatedSelected = chats.find(c => c.id === selectedChat.id)
-      if (updatedSelected) {
-        setSelectedChat(updatedSelected)
+  // Función unificada para abrir cropper
+  const openCropperFor = async (file: File, target: "new" | "edit") => {
+    const raw = await fileToDataURL(file)
+    const img = new Image()
+    img.src = raw
+    await img.decode()
+    const side = Math.min(img.width, img.height)
+    const initialSize = Math.floor(side * 0.8)
+    const initialX = Math.floor((img.width - initialSize) / 2)
+    const initialY = Math.floor((img.height - initialSize) / 2)
+    
+    dispatch({
+      type: "OPEN_CROPPER",
+      payload: {
+        src: raw,
+        w: img.width,
+        h: img.height,
+        x: initialX,
+        y: initialY,
+        size: initialSize,
+        target
       }
-    }
-  }, [chats, selectedChat])
+    })
+  }
+
+  // Función unificada para guardar crop
+  const handleCropSave = async () => {
+    if (!uiState.cropper.src) return
+    
+    const dataURL = await compressDataURL(
+      uiState.cropper.src,
+      { x: uiState.cropper.x, y: uiState.cropper.y, size: uiState.cropper.size },
+      256, // exportSize
+      true, // preferWebP
+      0.8   // quality
+    )
+    
+    dispatch({ type: "SAVE_CROP", payload: dataURL })
+  }
 
   // ✅ Crear un nuevo chat
   const createChatAndOpen = (name: string) => {
     const trimmed = name.trim()
     if (!trimmed) return
 
-    const newChat = createChat(trimmed, avatarPreview || "/placeholder.svg")
-    setSelectedChat(newChat)
-    setCurrentView("chat")
-    setNewChatName("")
-    setAvatarPreview(null)
+    const newChat = createChat(trimmed, uiState.newChat.avatarPreview || "/placeholder.svg")
+    dispatch({ type: "NAVIGATE_TO_CHAT", payload: newChat.id })
+    dispatch({ type: "RESET_NEW_CHAT_FORM" })
+    setInputValue("")
   }
 
   const handleChatClick = (chat: Chat) => {
-    setSelectedChat(chat)
-    setCurrentView("chat")
+    dispatch({ type: "NAVIGATE_TO_CHAT", payload: chat.id })
     setInputValue("")
   }
 
   const handleBackToChats = () => {
-    setCurrentView("chatList")
-    setSelectedChat(null)
+    dispatch({ type: "NAVIGATE_BACK_TO_CHATS" })
   }
 
   const startSelectLongPress = (chatId: number, msgId: number) => {
     startLongPress(() => {
-      setSelectedMsg({ chatId, msgId })
-      setEditingTarget(null)
+      dispatch({ type: "SET_SELECTED_MSG", payload: { chatId, msgId } })
     })
   }
 
   const deleteSelectedMessage = () => {
-    if (!selectedMsg) return
-    deleteMessage(selectedMsg.chatId, selectedMsg.msgId)
-    setSelectedMsg(null)
-    setEditingTarget(null)
+    if (!uiState.selectedMsg) return
+    deleteMessage(uiState.selectedMsg.chatId, uiState.selectedMsg.msgId)
+    dispatch({ type: "CLEAR_MSG_SELECTION" })
   }
 
   const beginEditSelectedMessage = () => {
-    if (!selectedMsg) return
-    const chat = chats.find(c => c.id === selectedMsg.chatId)
-    const msg = chat?.messages.find(m => m.id === selectedMsg.msgId)
+    if (!uiState.selectedMsg) return
+    const chat = chats.find(c => c.id === uiState.selectedMsg!.chatId)
+    const msg = chat?.messages.find(m => m.id === uiState.selectedMsg!.msgId)
     if (!msg) return
     setInputValue(msg.text)
-    setEditingTarget(selectedMsg)
+    dispatch({ type: "SET_EDITING_TARGET", payload: uiState.selectedMsg })
   }
 
   const saveEditedMessage = () => {
-    if (!editingTarget) return
+    if (!uiState.editingTarget) return
     const newText = inputValue.trim()
     if (!newText) return
-    editMessage(editingTarget.chatId, editingTarget.msgId, newText)
+    editMessage(uiState.editingTarget.chatId, uiState.editingTarget.msgId, newText)
     setInputValue("")
-    setEditingTarget(null)
-    setSelectedMsg(null)
+    dispatch({ type: "CLEAR_MSG_SELECTION" })
   }
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    const raw = await fileToDataURL(file)
-    // setear límites y valores iniciales del cropper
-    const img = new Image()
-    img.src = raw
-    await img.decode()
-    const side = Math.min(img.width, img.height)
-    setCropSrc(raw)
-    setCropW(img.width)
-    setCropH(img.height)
-    setCropSize(Math.floor(side * 0.8)) // arranca con 80% del lado corto
-    setCropX(Math.floor((img.width - side * 0.8) / 2))
-    setCropY(Math.floor((img.height - side * 0.8) / 2))
-    setCropperOpen(true)
+    await openCropperFor(file, "new")
   }
 
   const handleEditFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    const raw = await fileToDataURL(file)
-    // setear límites y valores iniciales del cropper
-    const img = new Image()
-    img.src = raw
-    await img.decode()
-    const side = Math.min(img.width, img.height)
-    setCropSrc(raw)
-    setCropW(img.width)
-    setCropH(img.height)
-    setCropSize(Math.floor(side * 0.8)) // arranca con 80% del lado corto
-    setCropX(Math.floor((img.width - side * 0.8) / 2))
-    setCropY(Math.floor((img.height - side * 0.8) / 2))
-    setCropperOpen(true)
-  }
-
-  const handleCropSave = async () => {
-    if (!cropSrc) return
-    const dataURL = await compressDataURL(
-      cropSrc,
-      { x: cropX, y: cropY, size: cropSize },
-      256, // exportSize
-      true, // preferWebP
-      0.8   // quality
-    )
-    setAvatarPreview(dataURL)
-    setCropperOpen(false)
-  }
-
-  const handleEditCropSave = async () => {
-    if (!cropSrc) return
-    const dataURL = await compressDataURL(
-      cropSrc,
-      { x: cropX, y: cropY, size: cropSize },
-      256, // exportSize
-      true, // preferWebP
-      0.8   // quality
-    )
-    setEditAvatarPreview(dataURL)
-    setCropperOpen(false)
+    await openCropperFor(file, "edit")
   }
 
   const handleEditChat = () => {
     if (!selectedChat) return
-    setEditChatName(selectedChat.name)
-    setEditAvatarPreview(null)
-    setCurrentView("editChat")
+    dispatch({ type: "SET_EDIT_CHAT_NAME", payload: selectedChat.name })
+    dispatch({ type: "RESET_EDIT_CHAT_FORM" })
+    dispatch({ type: "NAVIGATE_TO_EDIT_CHAT" })
   }
 
   const handleSaveEditChat = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!selectedChat || !editChatName.trim()) return
+    if (!selectedChat || !uiState.editChat.name.trim()) return
     
     const updates: Partial<Pick<Chat, 'name' | 'avatar'>> = {
-      name: editChatName.trim()
+      name: uiState.editChat.name.trim()
     }
     
-    if (editAvatarPreview) {
-      updates.avatar = editAvatarPreview
+    if (uiState.editChat.avatarPreview) {
+      updates.avatar = uiState.editChat.avatarPreview
     }
     
     updateChat(selectedChat.id, updates)
-    setCurrentView("chat")
-    setEditChatName("")
-    setEditAvatarPreview(null)
+    dispatch({ type: "NAVIGATE_TO_CHAT", payload: selectedChat.id })
+    dispatch({ type: "RESET_EDIT_CHAT_FORM" })
   }
 
   const requestDeleteChat = (chatId: number) => {
-    setChatIdToDelete(chatId)
-    setConfirmDeleteOpen(true)
+    dispatch({ type: "OPEN_CONFIRM_DELETE", payload: chatId })
   }
   
   const confirmDeleteChat = () => {
-    if (chatIdToDelete == null) return
-    deleteChat(chatIdToDelete)
-    setConfirmDeleteOpen(false)
-    setChatIdToDelete(null)
+    if (uiState.confirmDelete.chatId == null) return
+    deleteChat(uiState.confirmDelete.chatId)
+    dispatch({ type: "CLOSE_CONFIRM_DELETE" })
     handleBackToChats() // 👉 vuelve a la lista de chats
   }
   
   const cancelDeleteChat = () => {
-    setConfirmDeleteOpen(false)
-    setChatIdToDelete(null)
+    dispatch({ type: "CLOSE_CONFIRM_DELETE" })
   }
+
+  // ChatController - objeto con todos los handlers para ChatView
+  const chatController = useMemo(() => ({
+    onBack: () => {
+      handleBackToChats()
+      dispatch({ type: "CLEAR_MSG_SELECTION" })
+    },
+    onAvatarClick: (avatarSrc: string) => {
+      dispatch({ type: "OPEN_IMAGE_VIEWER", payload: avatarSrc })
+    },
+    onDeleteChat: requestDeleteChat,
+    onToggleComposeMode: () => dispatch({ type: "TOGGLE_COMPOSE_MODE" }),
+    onEditMessage: beginEditSelectedMessage,
+    onDeleteMessage: deleteSelectedMessage,
+    onEditChat: handleEditChat,
+    onSendMessage: (text: string, asMe: boolean) => {
+      if (selectedChat) {
+        sendMessage(selectedChat.id, text, asMe)
+      }
+    },
+    onSaveEdit: saveEditedMessage,
+    onStartSelectLongPress: startSelectLongPress,
+    onCancelLongPress: cancelLongPress,
+    onDeselectMessage: () => dispatch({ type: "SET_SELECTED_MSG", payload: null })
+  }), [selectedChat, chats, sendMessage])
 
   // ==================================
   // 🔹 Vista: crear nuevo chat
   // ==================================
-  if (currentView === "newChat") {
+  if (uiState.view === "newChat") {
     return (
       <>
         <NewChatForm
-          newChatName={newChatName}
-          setNewChatName={setNewChatName}
-          avatarPreview={avatarPreview}
-          onBack={() => setCurrentView("chatList")}
+          newChatName={uiState.newChat.name}
+          setNewChatName={(name) => dispatch({ type: "SET_NEW_CHAT_NAME", payload: name })}
+          avatarPreview={uiState.newChat.avatarPreview}
+          onBack={() => dispatch({ type: "NAVIGATE_BACK_TO_CHATS" })}
           onSubmit={(e) => {
             e.preventDefault()
-            createChatAndOpen(newChatName)
+            createChatAndOpen(uiState.newChat.name)
           }}
           onFileChange={handleFileChange}
         />
 
         <AvatarCropperModal
-          isOpen={cropperOpen}
-          cropSrc={cropSrc}
-          cropW={cropW}
-          cropH={cropH}
-          cropX={cropX}
-          cropY={cropY}
-          cropSize={cropSize}
-          onClose={() => setCropperOpen(false)}
-          onCropXChange={setCropX}
-          onCropYChange={setCropY}
-          onCropSizeChange={setCropSize}
+          isOpen={uiState.cropper.isOpen}
+          cropSrc={uiState.cropper.src}
+          cropW={uiState.cropper.w}
+          cropH={uiState.cropper.h}
+          cropX={uiState.cropper.x}
+          cropY={uiState.cropper.y}
+          cropSize={uiState.cropper.size}
+          onClose={() => dispatch({ type: "CLOSE_CROPPER" })}
+          onCropXChange={(x) => dispatch({ type: "UPDATE_CROP_POSITION", payload: { x, y: uiState.cropper.y, size: uiState.cropper.size } })}
+          onCropYChange={(y) => dispatch({ type: "UPDATE_CROP_POSITION", payload: { x: uiState.cropper.x, y, size: uiState.cropper.size } })}
+          onCropSizeChange={(size) => dispatch({ type: "UPDATE_CROP_POSITION", payload: { x: uiState.cropper.x, y: uiState.cropper.y, size } })}
           onSave={handleCropSave}
         />
       </>
@@ -285,32 +258,32 @@ export default function WhatsAppInterface() {
   // ==================================
   // 🔹 Vista: editar chat
   // ==================================
-  if (currentView === "editChat" && selectedChat) {
+  if (uiState.view === "editChat" && selectedChat) {
     return (
       <>
         <EditChatForm
           chat={selectedChat}
-          chatName={editChatName}
-          setChatName={setEditChatName}
-          avatarPreview={editAvatarPreview}
-          onBack={() => setCurrentView("chat")}
+          chatName={uiState.editChat.name}
+          setChatName={(name) => dispatch({ type: "SET_EDIT_CHAT_NAME", payload: name })}
+          avatarPreview={uiState.editChat.avatarPreview}
+          onBack={() => dispatch({ type: "NAVIGATE_TO_CHAT", payload: selectedChat.id })}
           onSubmit={handleSaveEditChat}
           onFileChange={handleEditFileChange}
         />
 
         <AvatarCropperModal
-          isOpen={cropperOpen}
-          cropSrc={cropSrc}
-          cropW={cropW}
-          cropH={cropH}
-          cropX={cropX}
-          cropY={cropY}
-          cropSize={cropSize}
-          onClose={() => setCropperOpen(false)}
-          onCropXChange={setCropX}
-          onCropYChange={setCropY}
-          onCropSizeChange={setCropSize}
-          onSave={handleEditCropSave}
+          isOpen={uiState.cropper.isOpen}
+          cropSrc={uiState.cropper.src}
+          cropW={uiState.cropper.w}
+          cropH={uiState.cropper.h}
+          cropX={uiState.cropper.x}
+          cropY={uiState.cropper.y}
+          cropSize={uiState.cropper.size}
+          onClose={() => dispatch({ type: "CLOSE_CROPPER" })}
+          onCropXChange={(x) => dispatch({ type: "UPDATE_CROP_POSITION", payload: { x, y: uiState.cropper.y, size: uiState.cropper.size } })}
+          onCropYChange={(y) => dispatch({ type: "UPDATE_CROP_POSITION", payload: { x: uiState.cropper.x, y, size: uiState.cropper.size } })}
+          onCropSizeChange={(size) => dispatch({ type: "UPDATE_CROP_POSITION", payload: { x: uiState.cropper.x, y: uiState.cropper.y, size } })}
+          onSave={handleCropSave}
         />
       </>
     )
@@ -319,53 +292,32 @@ export default function WhatsAppInterface() {
   // ==================================
   // 🔹 Vista del chat seleccionado
   // ==================================
-  if (currentView === "chat" && selectedChat) {
-    const updatedSelected = chats.find(c => c.id === selectedChat.id) || selectedChat
-
+  if (uiState.view === "chat" && selectedChat) {
     return (
       <>
         <ChatView
-          chat={updatedSelected}
-          composeAsMe={composeAsMe}
+          chat={selectedChat}
+          composeAsMe={uiState.composeAsMe}
           inputValue={inputValue}
           setInputValue={setInputValue}
-          selectedMsg={selectedMsg}
-          editingTarget={editingTarget}
+          selectedMsg={uiState.selectedMsg}
+          editingTarget={uiState.editingTarget}
           kbOffset={kbOffset}
-          onBack={() => {
-            handleBackToChats()
-            setSelectedMsg(null)
-            setEditingTarget(null)
-          }}
-          onAvatarClick={(avatarSrc) => {
-            setViewerSrc(avatarSrc)
-            setViewerOpen(true)
-          }}
-          onDeleteChat={(id: number) => requestDeleteChat(id)}
-          onToggleComposeMode={() => setComposeAsMe(v => !v)}
-          onEditMessage={beginEditSelectedMessage}
-          onDeleteMessage={deleteSelectedMessage}
-          onEditChat={handleEditChat}
-          onSendMessage={(text, asMe) => sendMessage(updatedSelected.id, text, asMe)}
-          onSaveEdit={saveEditedMessage}
-          onStartSelectLongPress={startSelectLongPress}
-          onCancelLongPress={cancelLongPress}
-          onDeselectMessage={() => setSelectedMsg(null)}
+          chatController={chatController}
         />
 
         <ImageViewerModal
-          isOpen={viewerOpen}
-          src={viewerSrc}
-          onClose={() => setViewerOpen(false)}
+          isOpen={uiState.imageViewer.isOpen}
+          src={uiState.imageViewer.src}
+          onClose={() => dispatch({ type: "CLOSE_IMAGE_VIEWER" })}
         />
 
         <ConfirmDeleteChatModal
-          isOpen={confirmDeleteOpen}
+          isOpen={uiState.confirmDelete.isOpen}
           chatName={selectedChat?.name}
           onCancel={cancelDeleteChat}
           onConfirm={confirmDeleteChat}
         />
-
       </>
     )
   }
@@ -413,20 +365,19 @@ export default function WhatsAppInterface() {
           chats={chats}
           onChatClick={handleChatClick}
           onAvatarClick={(avatarSrc) => {
-            setViewerSrc(avatarSrc)
-            setViewerOpen(true)
+            dispatch({ type: "OPEN_IMAGE_VIEWER", payload: avatarSrc })
           }}
         />
 
         <BottomNavigation chatsCount={chats.length} />
 
-        <FloatingActionButton onClick={() => setCurrentView("newChat")} />
+        <FloatingActionButton onClick={() => dispatch({ type: "NAVIGATE_TO_NEW_CHAT" })} />
       </div>
 
       <ImageViewerModal
-        isOpen={viewerOpen}
-        src={viewerSrc}
-        onClose={() => setViewerOpen(false)}
+        isOpen={uiState.imageViewer.isOpen}
+        src={uiState.imageViewer.src}
+        onClose={() => dispatch({ type: "CLOSE_IMAGE_VIEWER" })}
       />
     </>
   )

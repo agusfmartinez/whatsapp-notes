@@ -6,14 +6,7 @@ import MessageBubble from "./MessageBubble"
 import Composer from "./Composer"
 import { Chat, Message } from "@/types/chat"
 
-interface ChatViewProps {
-  chat: Chat
-  composeAsMe: boolean
-  inputValue: string
-  setInputValue: (value: string) => void
-  selectedMsg: { chatId: number; msgId: number } | null
-  editingTarget: { chatId: number; msgId: number } | null
-  kbOffset: number
+interface ChatController {
   onBack: () => void
   onAvatarClick: (avatarSrc: string) => void
   onDeleteChat: (chatId: number) => void
@@ -28,6 +21,17 @@ interface ChatViewProps {
   onDeselectMessage: () => void
 }
 
+interface ChatViewProps {
+  chat: Chat
+  composeAsMe: boolean
+  inputValue: string
+  setInputValue: (value: string) => void
+  selectedMsg: { chatId: number; msgId: number } | null
+  editingTarget: { chatId: number; msgId: number } | null
+  kbOffset: number
+  chatController: ChatController
+}
+
 export default function ChatView({
   chat,
   composeAsMe,
@@ -36,24 +40,13 @@ export default function ChatView({
   selectedMsg,
   editingTarget,
   kbOffset,
-  onBack,
-  onAvatarClick,
-  onDeleteChat,
-  onToggleComposeMode,
-  onEditMessage,
-  onDeleteMessage,
-  onEditChat,
-  onSendMessage,
-  onSaveEdit,
-  onStartSelectLongPress,
-  onCancelLongPress,
-  onDeselectMessage
+  chatController
 }: ChatViewProps) {
   const messagesRef = useRef<HTMLDivElement | null>(null)
 
   const handleSend = () => {
     if (inputValue.trim()) {
-      onSendMessage(inputValue.trim(), composeAsMe)
+      chatController.onSendMessage(inputValue.trim(), composeAsMe)
       setInputValue("")
       requestAnimationFrame(() => {
         if (messagesRef.current) {
@@ -68,9 +61,9 @@ export default function ChatView({
       e.preventDefault()
       if (inputValue.trim()) {
         if (editingTarget) {
-          onSaveEdit()
+          chatController.onSaveEdit()
         } else {
-          onSendMessage(inputValue.trim(), composeAsMe)
+          chatController.onSendMessage(inputValue.trim(), composeAsMe)
         }
         requestAnimationFrame(() => {
           if (messagesRef.current) {
@@ -94,13 +87,13 @@ export default function ChatView({
         chat={chat}
         composeAsMe={composeAsMe}
         selectedMsg={selectedMsg}
-        onBack={onBack}
-        onAvatarClick={onAvatarClick}
-        onDeleteChat={onDeleteChat}
-        onToggleComposeMode={onToggleComposeMode}
-        onEditMessage={onEditMessage}
-        onDeleteMessage={onDeleteMessage}
-        onEditChat={onEditChat}
+        onBack={chatController.onBack}
+        onAvatarClick={chatController.onAvatarClick}
+        onDeleteChat={chatController.onDeleteChat}
+        onToggleComposeMode={chatController.onToggleComposeMode}
+        onEditMessage={chatController.onEditMessage}
+        onDeleteMessage={chatController.onDeleteMessage}
+        onEditChat={chatController.onEditChat}
       />
 
       {/* Messages (scrolleable) */}
@@ -111,7 +104,7 @@ export default function ChatView({
         onClick={(e) => {
           // si hacés tap en el fondo (no sobre un bubble), des-selecciona
           if (e.target === e.currentTarget) {
-            onDeselectMessage()
+            chatController.onDeselectMessage()
           }
         }}
       >
@@ -124,8 +117,8 @@ export default function ChatView({
               key={message.id}
               message={message}
               isSelected={isSelected}
-              onLongPress={() => onStartSelectLongPress(chat.id, message.id)}
-              onLongPressCancel={onCancelLongPress}
+              onLongPress={() => chatController.onStartSelectLongPress(chat.id, message.id)}
+              onLongPressCancel={chatController.onCancelLongPress}
             />
           )
         })}
@@ -136,7 +129,7 @@ export default function ChatView({
         setInputValue={setInputValue}
         isEditing={!!editingTarget}
         onSend={handleSend}
-        onSaveEdit={onSaveEdit}
+        onSaveEdit={chatController.onSaveEdit}
         onFocus={handleFocus}
         onKeyDown={handleKeyDown}
         messagesRef={messagesRef as React.RefObject<HTMLDivElement>}
