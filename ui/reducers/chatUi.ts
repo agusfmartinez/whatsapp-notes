@@ -1,5 +1,3 @@
-import { Chat } from "@/types/chat"
-
 export type View = "chatList" | "chat" | "newChat" | "editChat"
 
 export interface ChatUIState {

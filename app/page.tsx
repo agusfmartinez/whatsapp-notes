@@ -186,7 +186,18 @@ export default function WhatsAppInterface() {
     onStartSelectLongPress: startSelectLongPress,
     onCancelLongPress: cancelLongPress,
     onDeselectMessage: () => dispatch({ type: "SET_SELECTED_MSG", payload: null })
-  }), [selectedChat, chats, sendMessage])
+  }), [
+    selectedChat,
+    sendMessage,
+    handleBackToChats,
+    requestDeleteChat,
+    beginEditSelectedMessage,
+    deleteSelectedMessage,
+    handleEditChat,
+    saveEditedMessage,
+    startSelectLongPress,
+    cancelLongPress
+  ])
 
   if (uiState.view === "newChat") {
     return (

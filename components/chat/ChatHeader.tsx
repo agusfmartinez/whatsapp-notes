@@ -2,13 +2,9 @@
 
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {
-  DropdownMenu, DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { ArrowLeft, Video, Phone, MoreVertical } from "lucide-react"
+import { ArrowLeft, Video, Phone } from "lucide-react"
 import { Chat } from "@/types/chat"
+import OptionsMenu from "@/components/common/OptionsMenu"
 
 interface ChatHeaderProps {
   chat: Chat
@@ -35,6 +31,16 @@ export default function ChatHeader({
   onDeleteMessage,
   onEditChat
 }: ChatHeaderProps) {
+  const menuItems = [
+    { label: "Info del contacto", onSelect: onEditChat },
+    { label: "Archivar chat" },
+    { label: "Eliminar chat", onSelect: () => onDeleteChat(chat.id), danger: true },
+    { label: composeAsMe ? "Recibir mensaje" : "Enviar mensaje", onSelect: onToggleComposeMode },
+    { label: "__divider__" },
+    { label: "Editar mensaje", onSelect: onEditMessage, disabled: !selectedMsg },
+    { label: "Borrar mensaje", onSelect: onDeleteMessage, disabled: !selectedMsg },
+  ]
+
   return (
     <div className="flex items-center gap-3 px-4 py-3 bg-[#0b1014]">
       <Button 
@@ -63,36 +69,7 @@ export default function ChatHeader({
       <div className="flex items-center gap-4">
         <Video size={24} className="text-white" />
         <Phone size={24} className="text-white" />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="text-white">
-              <MoreVertical size={24} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem onClick={onEditChat}>Info del contacto</DropdownMenuItem>
-            <DropdownMenuItem>Archivar chat</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onDeleteChat(chat.id)}>
-              Eliminar chat
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={onToggleComposeMode}>
-              {composeAsMe ? "Recibir mensaje" : "Enviar mensaje"}
-            </DropdownMenuItem>
-            <div className="h-px my-1 bg-gray-700/50" />
-            <DropdownMenuItem
-              disabled={!selectedMsg}
-              onClick={onEditMessage}
-            >
-              Editar mensaje
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              disabled={!selectedMsg}
-              onClick={onDeleteMessage}
-            >
-              Borrar mensaje
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <OptionsMenu items={menuItems} />
       </div>
     </div>
   )

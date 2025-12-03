@@ -1,19 +1,13 @@
 "use client"
 
-import { Camera, MoreVertical, Archive } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { Camera, Archive } from "lucide-react"
 import ChatList from "@/components/chat/ChatList"
 import SearchBar from "@/components/common/SearchBar"
 import FilterTabs from "@/components/common/FilterTabs"
 import BottomNavigation from "@/components/common/BottomNavigation"
 import FloatingActionButton from "@/components/common/FloatingActionButton"
 import ImageViewerModal from "@/components/modals/ImageViewerModal"
+import OptionsMenu from "@/components/common/OptionsMenu"
 import { Chat } from "@/types/chat"
 
 type ChatListViewProps = {
@@ -41,18 +35,14 @@ export default function ChatListView({
           <h1 className="text-xl font-medium">WhatsApp</h1>
           <div className="flex items-center gap-4">
             <Camera size={24} />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-white">
-                  <MoreVertical size={24} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-40">
-                <DropdownMenuItem>Opción 1</DropdownMenuItem>
-                <DropdownMenuItem>Opción 2</DropdownMenuItem>
-                <DropdownMenuItem>Opción 3</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <OptionsMenu
+              items={[
+                { label: "Nueva difusión" },
+                { label: "Dispositivos vinculados" },
+                { label: "__divider__" },
+                { label: "Configuración" },
+              ]}
+            />
           </div>
         </div>
 

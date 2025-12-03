@@ -4,7 +4,7 @@ import { useRef } from "react"
 import ChatHeader from "./ChatHeader"
 import MessageBubble from "./MessageBubble"
 import Composer from "./Composer"
-import { Chat, Message } from "@/types/chat"
+import { Chat } from "@/types/chat"
 
 interface ChatController {
   onBack: () => void
