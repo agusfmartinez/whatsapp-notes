@@ -1,59 +1,30 @@
 "use client"
 
-import { useReducer, useEffect, useMemo, useState } from "react"
-import { Camera, MoreVertical, Archive } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu, DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-
-// Componentes
-import ChatList from "@/components/chat/ChatList"
-import ChatView from "@/components/chat/ChatView"
-import NewChatForm from "@/components/chat/NewChatForm"
-import EditChatForm from "@/components/chat/EditChatForm"
-import SearchBar from "@/components/common/SearchBar"
-import FilterTabs from "@/components/common/FilterTabs"
-import BottomNavigation from "@/components/common/BottomNavigation"
-import FloatingActionButton from "@/components/common/FloatingActionButton"
-import AvatarCropperModal from "@/components/modals/AvatarCropperModal"
-import ImageViewerModal from "@/components/modals/ImageViewerModal"
-import ConfirmDeleteChatModal from "@/components/modals/ConfirmDeleteChatModal"
-
-// Hooks
+import { useReducer, useMemo, useState } from "react"
 import { useChats } from "@/hooks/useChats"
 import { useKeyboardOffset } from "@/hooks/useKeyboardOffset"
 import { useLongPress } from "@/hooks/useLongPress"
-
-// Utils
 import { fileToDataURL, compressDataURL } from "@/lib/images"
-
-// Types
 import { Chat } from "@/types/chat"
-import { chatUiReducer, initialState, ChatUIAction } from "@/ui/reducers/chatUi"
+import { chatUiReducer, initialState } from "@/ui/reducers/chatUi"
+import ChatListView from "@/components/views/ChatListView"
+import ChatScreen from "@/components/views/ChatScreen"
+import NewChatScreen from "@/components/views/NewChatScreen"
+import EditChatScreen from "@/components/views/EditChatScreen"
 
 export default function WhatsAppInterface() {
-  // Estado global de UI usando reducer
   const [uiState, dispatch] = useReducer(chatUiReducer, initialState)
-  
-  // Estado local para el input del chat (no forma parte del estado global)
   const [inputValue, setInputValue] = useState("")
-
-  // Hooks
   const { chats, createChat, deleteChat, sendMessage, deleteMessage, editMessage, updateChat } = useChats()
   const kbOffset = useKeyboardOffset()
   const { startLongPress, cancelLongPress } = useLongPress()
 
 
-  // Obtener el chat seleccionado actual
   const selectedChat = useMemo(() => {
     if (!uiState.selectedChatId) return null
     return chats.find(c => c.id === uiState.selectedChatId) || null
   }, [chats, uiState.selectedChatId])
 
-  // Función unificada para abrir cropper
   const openCropperFor = async (file: File, target: "new" | "edit") => {
     const raw = await fileToDataURL(file)
     const img = new Image()
@@ -78,7 +49,6 @@ export default function WhatsAppInterface() {
     })
   }
 
-  // Función unificada para guardar crop
   const handleCropSave = async () => {
     if (!uiState.cropper.src) return
     
@@ -93,7 +63,6 @@ export default function WhatsAppInterface() {
     dispatch({ type: "SAVE_CROP", payload: dataURL })
   }
 
-  // ✅ Crear un nuevo chat
   const createChatAndOpen = (name: string) => {
     const trimmed = name.trim()
     if (!trimmed) return
@@ -219,166 +188,78 @@ export default function WhatsAppInterface() {
     onDeselectMessage: () => dispatch({ type: "SET_SELECTED_MSG", payload: null })
   }), [selectedChat, chats, sendMessage])
 
-  // ==================================
-  // 🔹 Vista: crear nuevo chat
-  // ==================================
   if (uiState.view === "newChat") {
     return (
-      <>
-        <NewChatForm
-          newChatName={uiState.newChat.name}
-          setNewChatName={(name) => dispatch({ type: "SET_NEW_CHAT_NAME", payload: name })}
-          avatarPreview={uiState.newChat.avatarPreview}
-          onBack={() => dispatch({ type: "NAVIGATE_BACK_TO_CHATS" })}
-          onSubmit={(e) => {
-            e.preventDefault()
-            createChatAndOpen(uiState.newChat.name)
-          }}
-          onFileChange={handleFileChange}
-        />
-
-        <AvatarCropperModal
-          isOpen={uiState.cropper.isOpen}
-          cropSrc={uiState.cropper.src}
-          cropW={uiState.cropper.w}
-          cropH={uiState.cropper.h}
-          cropX={uiState.cropper.x}
-          cropY={uiState.cropper.y}
-          cropSize={uiState.cropper.size}
-          onClose={() => dispatch({ type: "CLOSE_CROPPER" })}
-          onCropXChange={(x) => dispatch({ type: "UPDATE_CROP_POSITION", payload: { x, y: uiState.cropper.y, size: uiState.cropper.size } })}
-          onCropYChange={(y) => dispatch({ type: "UPDATE_CROP_POSITION", payload: { x: uiState.cropper.x, y, size: uiState.cropper.size } })}
-          onCropSizeChange={(size) => dispatch({ type: "UPDATE_CROP_POSITION", payload: { x: uiState.cropper.x, y: uiState.cropper.y, size } })}
-          onSave={handleCropSave}
-        />
-      </>
+      <NewChatScreen
+        newChatName={uiState.newChat.name}
+        setNewChatName={(name) => dispatch({ type: "SET_NEW_CHAT_NAME", payload: name })}
+        avatarPreview={uiState.newChat.avatarPreview}
+        onBack={() => dispatch({ type: "NAVIGATE_BACK_TO_CHATS" })}
+        onSubmit={(e) => {
+          e.preventDefault()
+          createChatAndOpen(uiState.newChat.name)
+        }}
+        onFileChange={handleFileChange}
+        cropper={uiState.cropper}
+        onCloseCropper={() => dispatch({ type: "CLOSE_CROPPER" })}
+        onCropXChange={(x) => dispatch({ type: "UPDATE_CROP_POSITION", payload: { x, y: uiState.cropper.y, size: uiState.cropper.size } })}
+        onCropYChange={(y) => dispatch({ type: "UPDATE_CROP_POSITION", payload: { x: uiState.cropper.x, y, size: uiState.cropper.size } })}
+        onCropSizeChange={(size) => dispatch({ type: "UPDATE_CROP_POSITION", payload: { x: uiState.cropper.x, y: uiState.cropper.y, size } })}
+        onSaveCrop={handleCropSave}
+      />
     )
   }
 
-  // ==================================
-  // 🔹 Vista: editar chat
-  // ==================================
   if (uiState.view === "editChat" && selectedChat) {
     return (
-      <>
-        <EditChatForm
-          chat={selectedChat}
-          chatName={uiState.editChat.name}
-          setChatName={(name) => dispatch({ type: "SET_EDIT_CHAT_NAME", payload: name })}
-          avatarPreview={uiState.editChat.avatarPreview}
-          onBack={() => dispatch({ type: "NAVIGATE_TO_CHAT", payload: selectedChat.id })}
-          onSubmit={handleSaveEditChat}
-          onFileChange={handleEditFileChange}
-        />
-
-        <AvatarCropperModal
-          isOpen={uiState.cropper.isOpen}
-          cropSrc={uiState.cropper.src}
-          cropW={uiState.cropper.w}
-          cropH={uiState.cropper.h}
-          cropX={uiState.cropper.x}
-          cropY={uiState.cropper.y}
-          cropSize={uiState.cropper.size}
-          onClose={() => dispatch({ type: "CLOSE_CROPPER" })}
-          onCropXChange={(x) => dispatch({ type: "UPDATE_CROP_POSITION", payload: { x, y: uiState.cropper.y, size: uiState.cropper.size } })}
-          onCropYChange={(y) => dispatch({ type: "UPDATE_CROP_POSITION", payload: { x: uiState.cropper.x, y, size: uiState.cropper.size } })}
-          onCropSizeChange={(size) => dispatch({ type: "UPDATE_CROP_POSITION", payload: { x: uiState.cropper.x, y: uiState.cropper.y, size } })}
-          onSave={handleCropSave}
-        />
-      </>
+      <EditChatScreen
+        chat={selectedChat}
+        chatName={uiState.editChat.name}
+        setChatName={(name) => dispatch({ type: "SET_EDIT_CHAT_NAME", payload: name })}
+        avatarPreview={uiState.editChat.avatarPreview}
+        onBack={() => dispatch({ type: "NAVIGATE_TO_CHAT", payload: selectedChat.id })}
+        onSubmit={handleSaveEditChat}
+        onFileChange={handleEditFileChange}
+        cropper={uiState.cropper}
+        onCloseCropper={() => dispatch({ type: "CLOSE_CROPPER" })}
+        onCropXChange={(x) => dispatch({ type: "UPDATE_CROP_POSITION", payload: { x, y: uiState.cropper.y, size: uiState.cropper.size } })}
+        onCropYChange={(y) => dispatch({ type: "UPDATE_CROP_POSITION", payload: { x: uiState.cropper.x, y, size: uiState.cropper.size } })}
+        onCropSizeChange={(size) => dispatch({ type: "UPDATE_CROP_POSITION", payload: { x: uiState.cropper.x, y: uiState.cropper.y, size } })}
+        onSaveCrop={handleCropSave}
+      />
     )
   }
 
-  // ==================================
-  // 🔹 Vista del chat seleccionado
-  // ==================================
   if (uiState.view === "chat" && selectedChat) {
     return (
-      <>
-        <ChatView
-          chat={selectedChat}
-          composeAsMe={uiState.composeAsMe}
-          inputValue={inputValue}
-          setInputValue={setInputValue}
-          selectedMsg={uiState.selectedMsg}
-          editingTarget={uiState.editingTarget}
-          kbOffset={kbOffset}
-          chatController={chatController}
-        />
-
-        <ImageViewerModal
-          isOpen={uiState.imageViewer.isOpen}
-          src={uiState.imageViewer.src}
-          onClose={() => dispatch({ type: "CLOSE_IMAGE_VIEWER" })}
-        />
-
-        <ConfirmDeleteChatModal
-          isOpen={uiState.confirmDelete.isOpen}
-          chatName={selectedChat?.name}
-          onCancel={cancelDeleteChat}
-          onConfirm={confirmDeleteChat}
-        />
-      </>
+      <ChatScreen
+        chat={selectedChat}
+        composeAsMe={uiState.composeAsMe}
+        inputValue={inputValue}
+        setInputValue={setInputValue}
+        selectedMsg={uiState.selectedMsg}
+        editingTarget={uiState.editingTarget}
+        kbOffset={kbOffset}
+        chatController={chatController}
+        imageViewer={uiState.imageViewer}
+        onCloseImage={() => dispatch({ type: "CLOSE_IMAGE_VIEWER" })}
+        confirmDelete={uiState.confirmDelete}
+        onCancelDelete={cancelDeleteChat}
+        onConfirmDelete={confirmDeleteChat}
+      />
     )
   }
 
-  // ==================================
-  // 🔹 Vista de lista de chats
-  // ==================================
   return (
-    <>
-      <div className="bg-[#0b1014] text-white h-screen w-screen flex flex-col">
-        {/* Header */}
-        <div className="flex justify-between items-center px-4 py-3">
-          <h1 className="text-xl font-medium">WhatsApp</h1>
-          <div className="flex items-center gap-4">
-            <Camera size={24} />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-white">
-                  <MoreVertical size={24} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-40">
-                <DropdownMenuItem>Opción 1</DropdownMenuItem>
-                <DropdownMenuItem>Opción 2</DropdownMenuItem>
-                <DropdownMenuItem>Opción 3</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-
-        <SearchBar />
-
-        <FilterTabs />
-
-        {/* Archived Section */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
-          <div className="flex items-center gap-3">
-            <Archive size={20} className="text-gray-400" />
-            <span className="text-gray-300">Archivados</span>
-          </div>
-          <span className="text-gray-400 text-sm">0</span>
-        </div>
-
-        <ChatList
-          chats={chats}
-          onChatClick={handleChatClick}
-          onAvatarClick={(avatarSrc) => {
-            dispatch({ type: "OPEN_IMAGE_VIEWER", payload: avatarSrc })
-          }}
-        />
-
-        <BottomNavigation chatsCount={chats.length} />
-
-        <FloatingActionButton onClick={() => dispatch({ type: "NAVIGATE_TO_NEW_CHAT" })} />
-      </div>
-
-      <ImageViewerModal
-        isOpen={uiState.imageViewer.isOpen}
-        src={uiState.imageViewer.src}
-        onClose={() => dispatch({ type: "CLOSE_IMAGE_VIEWER" })}
-      />
-    </>
+    <ChatListView
+      chats={chats}
+      onChatClick={handleChatClick}
+      onAvatarClick={(avatarSrc) => {
+        dispatch({ type: "OPEN_IMAGE_VIEWER", payload: avatarSrc })
+      }}
+      onNewChat={() => dispatch({ type: "NAVIGATE_TO_NEW_CHAT" })}
+      imageViewer={uiState.imageViewer}
+      onCloseImage={() => dispatch({ type: "CLOSE_IMAGE_VIEWER" })}
+    />
   )
 }

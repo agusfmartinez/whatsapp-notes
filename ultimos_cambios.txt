@@ -72,3 +72,16 @@ menus de configurar chat:
     - agregar a favoritos
     - eliminar chat en rojo
 
+Plan propuesto (orden sugerido)
+
+Limpiar/organizar el repo: mover/eliminar backup/, color_palette.txt, stubs vacíos (ChatListItem.tsx, ChatDropdown.tsx, ChatListDropdown.tsx, StickyBottomBar.tsx, lib/storage.ts, lib/time.ts) o implementarlos; revisar .gitignore para que no reaparezcan.
+Unificar estado de chats: elegir entre hooks/useChats o context/ChatsProvider + reducer UI; exponer un solo provider con persistencia en localStorage y acciones claras (crear/editar/borrar chats y mensajes, selección/edición, toggle compose).
+Reestructurar vistas: usar App Router con rutas o contenedores separados para lista, chat, nuevo chat y editar chat; dejar app/page.tsx como orquestador simple; aislar modales y controladores por vista.
+Componentes UI: reutilizar items (chat list item, dropdowns), evitar lógica duplicada en headers/listas, asegurar props tipadas y sin any; eliminar código muerto.
+UX móvil: revisar useKeyboardOffset, scroll al último mensaje, evitar “sticky” roto; agregar indicadores (hoy/ayer) y estados vacíos.
+PWA real: añadir service worker/Next PWA config, caché offline básico, verificar manifest e iconos, comportamiento standalone.
+Accesibilidad y i18n: labels/aria en inputs/botones, estados focus, textos en un archivo de strings si aplica.
+Datos y formatos: normalizar timestamps, utilidades en lib/time, generar seeded data opcional para dev, validar imágenes (límite de tamaño, tipo).
+Estilos: centralizar temas/tokens, limpiar clases ad-hoc, revisar tailwind config (v4) y globals.css para que coincidan con el diseño.
+Calidad: configurar ESLint/TypeScript strict (ya en strict pero revisar suppressions), añadir pruebas básicas (unitarias para reducer/hooks y e2e mínimos si hay tiempo), revisar build/lint scripts y CI.
+Decime por cuál paso querés empezar y lo vamos ejecutando uno por uno.
