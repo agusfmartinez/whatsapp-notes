@@ -11,6 +11,7 @@ import ChatListView from "@/components/views/ChatListView"
 import ChatScreen from "@/components/views/ChatScreen"
 import NewChatScreen from "@/components/views/NewChatScreen"
 import EditChatScreen from "@/components/views/EditChatScreen"
+import ServiceWorkerClient from "@/components/common/ServiceWorkerClient"
 
 export default function WhatsAppInterface() {
   const [uiState, dispatch] = useReducer(chatUiReducer, initialState)
@@ -262,15 +263,18 @@ export default function WhatsAppInterface() {
   }
 
   return (
-    <ChatListView
-      chats={chats}
-      onChatClick={handleChatClick}
-      onAvatarClick={(avatarSrc) => {
-        dispatch({ type: "OPEN_IMAGE_VIEWER", payload: avatarSrc })
-      }}
-      onNewChat={() => dispatch({ type: "NAVIGATE_TO_NEW_CHAT" })}
-      imageViewer={uiState.imageViewer}
-      onCloseImage={() => dispatch({ type: "CLOSE_IMAGE_VIEWER" })}
-    />
+    <>
+      <ServiceWorkerClient />
+      <ChatListView
+        chats={chats}
+        onChatClick={handleChatClick}
+        onAvatarClick={(avatarSrc) => {
+          dispatch({ type: "OPEN_IMAGE_VIEWER", payload: avatarSrc })
+        }}
+        onNewChat={() => dispatch({ type: "NAVIGATE_TO_NEW_CHAT" })}
+        imageViewer={uiState.imageViewer}
+        onCloseImage={() => dispatch({ type: "CLOSE_IMAGE_VIEWER" })}
+      />
+    </>
   )
 }
