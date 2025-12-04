@@ -21,6 +21,14 @@ export default function ChatList({ chats, onChatClick, onAvatarClick }: ChatList
     return (lastB?.timestamp || 0) - (lastA?.timestamp || 0)
   })
 
+  if (!sortedChats.length) {
+    return (
+      <div className="flex-1 flex items-center justify-center text-gray-400 text-sm px-6 text-center">
+        No hay chats aún. Crea uno nuevo con el botón “+”.
+      </div>
+    )
+  }
+
   return (
     <div className="flex-1 overflow-y-auto">
       {sortedChats.map((chat) => (

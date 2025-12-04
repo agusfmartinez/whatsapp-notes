@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef } from "react"
+import { useEffect, useRef } from "react"
 import ChatHeader from "./ChatHeader"
 import MessageBubble from "./MessageBubble"
 import Composer from "./Composer"
@@ -44,15 +44,70 @@ export default function ChatView({
 }: ChatViewProps) {
   const messagesRef = useRef<HTMLDivElement | null>(null)
 
+  const scrollToBottom = () => {
+    requestAnimationFrame(() => {
+      if (messagesRef.current) {
+        messagesRef.current.scrollTop = messagesRef.current.scrollHeight
+      }
+    })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [chat.id, chat.messages.length])
+
+  const formatDateLabel = (timestamp?: number) => {
+    if (!timestamp) return ""
+    const msgDate = new Date(timestamp)
+    const today = new Date()
+    const yesterday = new Date()
+    yesterday.setDate(today.getDate() - 1)
+
+    const sameDay = (a: Date, b: Date) =>
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate()
+
+    if (sameDay(msgDate, today)) return "Hoy"
+    if (sameDay(msgDate, yesterday)) return "Ayer"
+    return msgDate.toLocaleDateString([], { day: "2-digit", month: "short" })
+  }
+
+  const messagesWithLabels: React.ReactNode[] = []
+  let lastLabel = ""
+
+  chat.messages.forEach((message) => {
+    const label = formatDateLabel(message.timestamp)
+    if (label && label !== lastLabel) {
+      messagesWithLabels.push(
+        <div key={`${message.id}-label`} className="flex justify-center my-2">
+          <span className="text-xs text-gray-300 bg-[#1a222b] px-3 py-1 rounded-full">
+            {label}
+          </span>
+        </div>
+      )
+      lastLabel = label
+    }
+
+    const isSelected =
+      selectedMsg?.chatId === chat.id && selectedMsg?.msgId === message.id
+
+    messagesWithLabels.push(
+      <MessageBubble
+        key={message.id}
+        message={message}
+        isSelected={isSelected}
+        onLongPress={() => chatController.onStartSelectLongPress(chat.id, message.id)}
+        onLongPressCancel={chatController.onCancelLongPress}
+      />
+    )
+  })
+
   const handleSend = () => {
     if (inputValue.trim()) {
       chatController.onSendMessage(inputValue.trim(), composeAsMe)
       setInputValue("")
-      requestAnimationFrame(() => {
-        if (messagesRef.current) {
-          messagesRef.current.scrollTop = messagesRef.current.scrollHeight
-        }
-      })
+      scrollToBottom()
     }
   }
 
@@ -65,11 +120,7 @@ export default function ChatView({
         } else {
           chatController.onSendMessage(inputValue.trim(), composeAsMe)
         }
-        requestAnimationFrame(() => {
-          if (messagesRef.current) {
-            messagesRef.current.scrollTop = messagesRef.current.scrollHeight
-          }
-        })
+        scrollToBottom()
       }
     }
   }
@@ -108,20 +159,13 @@ export default function ChatView({
           }
         }}
       >
-        {chat.messages.map((message) => {
-          const isSelected =
-            selectedMsg?.chatId === chat.id && selectedMsg?.msgId === message.id
-
-          return (
-            <MessageBubble
-              key={message.id}
-              message={message}
-              isSelected={isSelected}
-              onLongPress={() => chatController.onStartSelectLongPress(chat.id, message.id)}
-              onLongPressCancel={chatController.onCancelLongPress}
-            />
-          )
-        })}
+        {messagesWithLabels.length > 0 ? (
+          messagesWithLabels
+        ) : (
+          <div className="h-full flex items-center justify-center text-gray-400 text-sm text-center px-6">
+            No hay mensajes. Escribe para comenzar la conversación.
+          </div>
+        )}
       </div>
 
       <Composer
