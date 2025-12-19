@@ -26,7 +26,7 @@ export default function ChatListItem({ chat, onClick, onAvatarClick }: ChatListI
           onAvatarClick(avatarSrc)
         }}
       >
-        <AvatarImage src={avatarSrc} alt={chat.name} />
+        <AvatarImage src={avatarSrc} alt={`Avatar de ${chat.name}`} />
         <AvatarFallback className="bg-gray-700 text-white">
           {chat.name.charAt(0)}
         </AvatarFallback>

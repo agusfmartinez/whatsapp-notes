@@ -9,6 +9,7 @@ import FloatingActionButton from "@/components/common/FloatingActionButton"
 import ImageViewerModal from "@/components/modals/ImageViewerModal"
 import OptionsMenu from "@/components/common/OptionsMenu"
 import { Chat } from "@/types/chat"
+import { strings } from "@/strings/es"
 
 type ChatListViewProps = {
   chats: Chat[]
@@ -32,15 +33,15 @@ export default function ChatListView({
       <div className="bg-[#0b1014] text-white h-screen w-screen flex flex-col">
         {/* Header */}
         <div className="flex justify-between items-center px-4 py-3">
-          <h1 className="text-xl font-medium">WhatsApp</h1>
+          <h1 className="text-xl font-medium">{strings.appTitle}</h1>
           <div className="flex items-center gap-4">
-            <Camera size={24} />
+            <Camera size={24} aria-hidden="true" />
             <OptionsMenu
               items={[
-                { label: "Nueva difusión" },
-                { label: "Dispositivos vinculados" },
+                { label: strings.mainMenu.broadcast },
+                { label: strings.mainMenu.linked },
                 { label: "__divider__" },
-                { label: "Configuración" },
+                { label: strings.mainMenu.settings },
               ]}
             />
           </div>
@@ -54,9 +55,9 @@ export default function ChatListView({
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
           <div className="flex items-center gap-3">
             <Archive size={20} className="text-gray-400" />
-            <span className="text-gray-300">Archivados</span>
+            <span className="text-gray-300">{strings.archived}</span>
           </div>
-          <span className="text-gray-400 text-sm">0</span>
+          <span className="text-gray-400 text-sm">{strings.archivedCount}</span>
         </div>
 
         <ChatList

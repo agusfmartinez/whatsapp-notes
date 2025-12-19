@@ -2,6 +2,7 @@
 
 import ChatListItem from "./ChatListItem"
 import { Chat } from "@/types/chat"
+import { strings } from "@/strings/es"
 
 type ChatListProps = {
   chats: Chat[]
@@ -24,7 +25,7 @@ export default function ChatList({ chats, onChatClick, onAvatarClick }: ChatList
   if (!sortedChats.length) {
     return (
       <div className="flex-1 flex items-center justify-center text-gray-400 text-sm px-6 text-center">
-        No hay chats aún. Crea uno nuevo con el botón “+”.
+        {strings.emptyChats}
       </div>
     )
   }

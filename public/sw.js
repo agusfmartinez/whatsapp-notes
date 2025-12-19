@@ -25,6 +25,10 @@ self.addEventListener("fetch", (event) => {
   const { request } = event
   if (request.method !== "GET") return
 
+  // Evitar esquemas no http/https (ej. chrome-extension)
+  const url = new URL(request.url)
+  if (url.protocol !== "http:" && url.protocol !== "https:") return
+
   // Navegaciones: network-first con fallback a cache
   if (request.mode === "navigate") {
     event.respondWith(

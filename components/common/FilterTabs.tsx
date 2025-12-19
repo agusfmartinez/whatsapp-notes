@@ -1,6 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { strings } from "@/strings/es"
 
 interface FilterTabsProps {
   activeTab?: string
@@ -9,10 +10,10 @@ interface FilterTabsProps {
 
 export default function FilterTabs({ activeTab = "todos", onTabChange }: FilterTabsProps) {
   const tabs = [
-    { id: "todos", label: "Todos" },
-    { id: "no-leidos", label: "No leídos", count: 0 },
-    { id: "favoritos", label: "Favoritos", count: 0 },
-    { id: "grupos", label: "Grupos", count: 0 }
+    { id: "todos", label: strings.tabs.all },
+    { id: "no-leidos", label: strings.tabs.unread, count: 0 },
+    { id: "favoritos", label: strings.tabs.favorites, count: 0 },
+    { id: "grupos", label: strings.tabs.groups, count: 0 }
   ]
 
   return (

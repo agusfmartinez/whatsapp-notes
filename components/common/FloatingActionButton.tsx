@@ -13,8 +13,10 @@ export default function FloatingActionButton({ onClick }: FloatingActionButtonPr
       <Button
         className="bg-[#21c063] hover:bg-green-600 w-14 h-14 rounded-full shadow-lg"
         onClick={onClick}
+        aria-label="Crear nuevo chat"
+        title="Crear nuevo chat"
       >
-        <Plus size={24} />
+        <Plus size={24} aria-hidden="true" />
       </Button>
     </div>
   )

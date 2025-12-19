@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Paperclip, Camera, Check, SendHorizontal } from "lucide-react"
+import { strings } from "@/strings/es"
 
 interface ComposerProps {
   inputValue: string
@@ -38,15 +39,26 @@ export default function Composer({
               }
             }}
             onKeyDown={onKeyDown}
-            placeholder={isEditing ? "Editar mensaje…" : "Mensaje"}
+            placeholder={isEditing ? strings.composer.editPlaceholder : strings.composer.placeholder}
             className="bg-[#22292c] py-2.5 pl-4 pr-20 border border-gray-700 text-white rounded-full w-full outline-none"
+            aria-label={isEditing ? strings.composer.editPlaceholder : strings.composer.placeholder}
           />
 
           <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="p-1 text-gray-400 hover:bg-transparent">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="p-1 text-gray-400 hover:bg-transparent"
+              aria-label={strings.composer.attach}
+            >
               <Paperclip size={20} />
             </Button>
-            <Button variant="ghost" size="sm" className="p-1 text-gray-400 hover:bg-transparent">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="p-1 text-gray-400 hover:bg-transparent"
+              aria-label={strings.composer.camera}
+            >
               <Camera size={20} />
             </Button>
           </div>
@@ -56,7 +68,7 @@ export default function Composer({
           <Button
             onClick={onSaveEdit}
             className="bg-[#21c063] hover:bg-green-600 w-12 h-12 rounded-full p-0"
-            aria-label="Guardar edición"
+            aria-label={strings.composer.save}
           >
             <Check size={24} />
           </Button>
@@ -64,7 +76,7 @@ export default function Composer({
           <Button
             onClick={onSend}
             className="bg-[#21c063] hover:bg-green-600 w-12 h-12 rounded-full p-0"
-            aria-label="Enviar"
+            aria-label={strings.composer.send}
           >
             <SendHorizontal size={24} />
           </Button>

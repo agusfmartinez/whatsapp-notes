@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ArrowLeft, Video, Phone } from "lucide-react"
 import { Chat } from "@/types/chat"
 import OptionsMenu from "@/components/common/OptionsMenu"
+import { strings } from "@/strings/es"
 
 interface ChatHeaderProps {
   chat: Chat
@@ -32,13 +33,13 @@ export default function ChatHeader({
   onEditChat
 }: ChatHeaderProps) {
   const menuItems = [
-    { label: "Info del contacto", onSelect: onEditChat },
-    { label: "Archivar chat" },
-    { label: "Eliminar chat", onSelect: () => onDeleteChat(chat.id), danger: true },
-    { label: composeAsMe ? "Recibir mensaje" : "Enviar mensaje", onSelect: onToggleComposeMode },
+    { label: strings.chatMenu.contactInfo, onSelect: onEditChat },
+    { label: strings.chatMenu.archive },
+    { label: strings.chatMenu.delete, onSelect: () => onDeleteChat(chat.id), danger: true },
+    { label: composeAsMe ? strings.chatMenu.toggleComposeMe.receive : strings.chatMenu.toggleComposeMe.send, onSelect: onToggleComposeMode },
     { label: "__divider__" },
-    { label: "Editar mensaje", onSelect: onEditMessage, disabled: !selectedMsg },
-    { label: "Borrar mensaje", onSelect: onDeleteMessage, disabled: !selectedMsg },
+    { label: strings.chatMenu.editMessage, onSelect: onEditMessage, disabled: !selectedMsg },
+    { label: strings.chatMenu.deleteMessage, onSelect: onDeleteMessage, disabled: !selectedMsg },
   ]
 
   return (
@@ -48,6 +49,7 @@ export default function ChatHeader({
         size="sm" 
         className="p-0 h-auto text-white hover:bg-transparent"
         onClick={onBack}
+        aria-label="Volver a la lista de chats"
       >
         <ArrowLeft size={24} />
       </Button>
@@ -67,8 +69,8 @@ export default function ChatHeader({
       </div>
       
       <div className="flex items-center gap-4">
-        <Video size={24} className="text-white" />
-        <Phone size={24} className="text-white" />
+        <Video size={24} className="text-white" aria-hidden="true" />
+        <Phone size={24} className="text-white" aria-hidden="true" />
         <OptionsMenu items={menuItems} />
       </div>
     </div>

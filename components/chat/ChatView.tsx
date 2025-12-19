@@ -5,6 +5,7 @@ import ChatHeader from "./ChatHeader"
 import MessageBubble from "./MessageBubble"
 import Composer from "./Composer"
 import { Chat } from "@/types/chat"
+import { strings } from "@/strings/es"
 
 interface ChatController {
   onBack: () => void
@@ -163,7 +164,7 @@ export default function ChatView({
           messagesWithLabels
         ) : (
           <div className="h-full flex items-center justify-center text-gray-400 text-sm text-center px-6">
-            No hay mensajes. Escribe para comenzar la conversación.
+            {strings.emptyMessages}
           </div>
         )}
       </div>
