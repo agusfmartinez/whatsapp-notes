@@ -31,7 +31,7 @@ export default function ChatList({ chats, onChatClick, onAvatarClick }: ChatList
   }
 
   return (
-    <div className="flex-1 overflow-y-auto">
+    <div className="flex-1 overflow-y-auto bg-background text-foreground">
       {sortedChats.map((chat) => (
         <ChatListItem
           key={chat.id}

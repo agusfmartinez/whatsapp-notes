@@ -30,7 +30,7 @@ export default function ChatListView({
 }: ChatListViewProps) {
   return (
     <>
-      <div className="bg-[#0b1014] text-white h-screen w-screen flex flex-col">
+      <div className="bg-background text-foreground h-screen w-screen flex flex-col">
         {/* Header */}
         <div className="flex justify-between items-center px-4 py-3">
           <h1 className="text-xl font-medium">{strings.appTitle}</h1>
@@ -52,12 +52,12 @@ export default function ChatListView({
         <FilterTabs />
 
         {/* Archived Section */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border/60">
           <div className="flex items-center gap-3">
-            <Archive size={20} className="text-gray-400" />
-            <span className="text-gray-300">{strings.archived}</span>
+            <Archive size={20} className="text-muted-foreground" />
+            <span className="text-muted-foreground">{strings.archived}</span>
           </div>
-          <span className="text-gray-400 text-sm">{strings.archivedCount}</span>
+          <span className="text-muted-foreground text-sm">{strings.archivedCount}</span>
         </div>
 
         <ChatList
