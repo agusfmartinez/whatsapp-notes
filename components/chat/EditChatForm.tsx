@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ArrowLeft } from "lucide-react"
 import { Chat } from "@/types/chat"
+import Image from "next/image"
 
 interface EditChatFormProps {
   chat: Chat
@@ -46,12 +47,22 @@ export default function EditChatForm({
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-full overflow-hidden bg-[#22292c] border border-gray-700">
               {avatarPreview ? (
-                <img src={avatarPreview} alt="preview" className="w-full h-full object-cover" />
+                <Image
+                  src={avatarPreview}
+                  alt="preview"
+                  width={48}
+                  height={48}
+                  className="w-full h-full object-cover"
+                  unoptimized
+                />
               ) : (
-                <img 
+                <Image 
                   src={chat.avatar || "/placeholder.svg"} 
                   alt="current avatar" 
+                  width={48}
+                  height={48}
                   className="w-full h-full object-cover" 
+                  unoptimized
                 />
               )}
             </div>

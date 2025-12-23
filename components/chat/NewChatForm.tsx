@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ArrowLeft } from "lucide-react"
+import Image from "next/image"
 
 interface NewChatFormProps {
   newChatName: string
@@ -43,7 +44,14 @@ export default function NewChatForm({
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-full overflow-hidden bg-[#22292c] border border-gray-700">
               {avatarPreview ? (
-                <img src={avatarPreview} alt="preview" className="w-full h-full object-cover" />
+                <Image
+                  src={avatarPreview}
+                  alt="preview"
+                  width={48}
+                  height={48}
+                  className="w-full h-full object-cover"
+                  unoptimized
+                />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">
                   Sin foto

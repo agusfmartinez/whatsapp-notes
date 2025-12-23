@@ -1,6 +1,6 @@
 "use client"
 
-import { useReducer, useMemo, useState } from "react"
+import { useReducer, useMemo, useState, useCallback } from "react"
 import { useChats } from "@/hooks/useChats"
 import { useKeyboardOffset } from "@/hooks/useKeyboardOffset"
 import { useLongPress } from "@/hooks/useLongPress"
@@ -74,44 +74,44 @@ export default function WhatsAppInterface() {
     setInputValue("")
   }
 
-  const handleChatClick = (chat: Chat) => {
+  const handleChatClick = useCallback((chat: Chat) => {
     dispatch({ type: "NAVIGATE_TO_CHAT", payload: chat.id })
     setInputValue("")
-  }
+  }, [])
 
-  const handleBackToChats = () => {
+  const handleBackToChats = useCallback(() => {
     dispatch({ type: "NAVIGATE_BACK_TO_CHATS" })
-  }
+  }, [])
 
-  const startSelectLongPress = (chatId: number, msgId: number) => {
+  const startSelectLongPress = useCallback((chatId: number, msgId: number) => {
     startLongPress(() => {
       dispatch({ type: "SET_SELECTED_MSG", payload: { chatId, msgId } })
     })
-  }
+  }, [startLongPress])
 
-  const deleteSelectedMessage = () => {
+  const deleteSelectedMessage = useCallback(() => {
     if (!uiState.selectedMsg) return
     deleteMessage(uiState.selectedMsg.chatId, uiState.selectedMsg.msgId)
     dispatch({ type: "CLEAR_MSG_SELECTION" })
-  }
+  }, [uiState.selectedMsg, deleteMessage])
 
-  const beginEditSelectedMessage = () => {
+  const beginEditSelectedMessage = useCallback(() => {
     if (!uiState.selectedMsg) return
     const chat = chats.find(c => c.id === uiState.selectedMsg!.chatId)
     const msg = chat?.messages.find(m => m.id === uiState.selectedMsg!.msgId)
     if (!msg) return
     setInputValue(msg.text)
     dispatch({ type: "SET_EDITING_TARGET", payload: uiState.selectedMsg })
-  }
+  }, [uiState.selectedMsg, chats])
 
-  const saveEditedMessage = () => {
+  const saveEditedMessage = useCallback(() => {
     if (!uiState.editingTarget) return
     const newText = inputValue.trim()
     if (!newText) return
     editMessage(uiState.editingTarget.chatId, uiState.editingTarget.msgId, newText)
     setInputValue("")
     dispatch({ type: "CLEAR_MSG_SELECTION" })
-  }
+  }, [uiState.editingTarget, inputValue, editMessage])
 
   const MAX_IMAGE_SIZE = 5 * 1024 * 1024 // 5MB
   const isValidImageFile = (file: File) => {
@@ -130,12 +130,12 @@ export default function WhatsAppInterface() {
     await openCropperFor(file, "edit")
   }
 
-  const handleEditChat = () => {
+  const handleEditChat = useCallback(() => {
     if (!selectedChat) return
     dispatch({ type: "SET_EDIT_CHAT_NAME", payload: selectedChat.name })
     dispatch({ type: "RESET_EDIT_CHAT_FORM" })
     dispatch({ type: "NAVIGATE_TO_EDIT_CHAT" })
-  }
+  }, [selectedChat])
 
   const handleSaveEditChat = (e: React.FormEvent) => {
     e.preventDefault()
@@ -154,9 +154,9 @@ export default function WhatsAppInterface() {
     dispatch({ type: "RESET_EDIT_CHAT_FORM" })
   }
 
-  const requestDeleteChat = (chatId: number) => {
+  const requestDeleteChat = useCallback((chatId: number) => {
     dispatch({ type: "OPEN_CONFIRM_DELETE", payload: chatId })
-  }
+  }, [])
   
   const confirmDeleteChat = () => {
     if (uiState.confirmDelete.chatId == null) return

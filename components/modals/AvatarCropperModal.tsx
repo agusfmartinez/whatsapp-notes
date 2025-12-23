@@ -1,5 +1,7 @@
 "use client"
 
+import Image from "next/image"
+
 interface AvatarCropperModalProps {
   isOpen: boolean
   cropSrc: string | null
@@ -42,7 +44,16 @@ export default function AvatarCropperModal({
         {/* Preview con rectángulo de recorte (solo ilustrativo) */}
         <div className="relative bg-[#111] rounded-md overflow-hidden aspect-square mb-3">
           {/* imagen completa ajustada a contenedor */}
-          <img src={cropSrc} alt="to-crop" className="w-full h-full object-contain" />
+          <div className="absolute inset-0">
+            <Image
+              src={cropSrc}
+              alt="to-crop"
+              fill
+              sizes="256px"
+              className="object-contain"
+              unoptimized
+            />
+          </div>
           {/* Overlay para marcar el recorte: lo representamos visualmente */}
           <div
             className="absolute border-2 border-[#21c063]/80"
