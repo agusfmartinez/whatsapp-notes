@@ -113,15 +113,20 @@ export default function WhatsAppInterface() {
     dispatch({ type: "CLEAR_MSG_SELECTION" })
   }
 
+  const MAX_IMAGE_SIZE = 5 * 1024 * 1024 // 5MB
+  const isValidImageFile = (file: File) => {
+    return file.type.startsWith("image/") && file.size <= MAX_IMAGE_SIZE
+  }
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file) return
+    if (!file || !isValidImageFile(file)) return
     await openCropperFor(file, "new")
   }
 
   const handleEditFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file) return
+    if (!file || !isValidImageFile(file)) return
     await openCropperFor(file, "edit")
   }
 

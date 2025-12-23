@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Chat } from "@/types/chat"
+import { formatTime } from "@/lib/time"
 
 export function useChats() {
   const [chats, setChats] = useState<Chat[]>([])
@@ -49,7 +50,7 @@ export function useChats() {
               {
                 id: Date.now(),
                 text,
-                time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                time: formatTime(now),
                 timestamp: now.getTime(),
                 isSent: asMe,
                 isRead: asMe ? true : undefined,

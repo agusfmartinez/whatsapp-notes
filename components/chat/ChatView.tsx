@@ -5,6 +5,7 @@ import ChatHeader from "./ChatHeader"
 import MessageBubble from "./MessageBubble"
 import Composer from "./Composer"
 import { Chat } from "@/types/chat"
+import { formatDayLabel } from "@/lib/time"
 import { strings } from "@/strings/es"
 
 interface ChatController {
@@ -57,28 +58,11 @@ export default function ChatView({
     scrollToBottom()
   }, [chat.id, chat.messages.length])
 
-  const formatDateLabel = (timestamp?: number) => {
-    if (!timestamp) return ""
-    const msgDate = new Date(timestamp)
-    const today = new Date()
-    const yesterday = new Date()
-    yesterday.setDate(today.getDate() - 1)
-
-    const sameDay = (a: Date, b: Date) =>
-      a.getFullYear() === b.getFullYear() &&
-      a.getMonth() === b.getMonth() &&
-      a.getDate() === b.getDate()
-
-    if (sameDay(msgDate, today)) return "Hoy"
-    if (sameDay(msgDate, yesterday)) return "Ayer"
-    return msgDate.toLocaleDateString([], { day: "2-digit", month: "short" })
-  }
-
   const messagesWithLabels: React.ReactNode[] = []
   let lastLabel = ""
 
   chat.messages.forEach((message) => {
-    const label = formatDateLabel(message.timestamp)
+    const label = message.timestamp ? formatDayLabel(message.timestamp) : ""
     if (label && label !== lastLabel) {
       messagesWithLabels.push(
         <div key={`${message.id}-label`} className="flex justify-center my-2">
