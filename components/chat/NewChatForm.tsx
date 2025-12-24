@@ -62,7 +62,6 @@ export default function NewChatForm({
             <input
               type="file"
               accept="image/*"
-              capture="environment"
               onChange={onFileChange}
               className="text-sm"
             />

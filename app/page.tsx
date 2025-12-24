@@ -113,9 +113,8 @@ export default function WhatsAppInterface() {
     dispatch({ type: "CLEAR_MSG_SELECTION" })
   }, [uiState.editingTarget, inputValue, editMessage])
 
-  const MAX_IMAGE_SIZE = 5 * 1024 * 1024 // 5MB
   const isValidImageFile = (file: File) => {
-    return file.type.startsWith("image/") && file.size <= MAX_IMAGE_SIZE
+    return file.type.startsWith("image/")
   }
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {

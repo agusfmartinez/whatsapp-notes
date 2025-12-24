@@ -40,6 +40,11 @@ Podés instalar la app en tu celular:
 ---
 ## 📝 Changelog
 
+### v1.0.1 - 2025-12-24
+- Fix comportamientos en Android:
+-- Los inputs de avatar ya no fuerzan la cámara: se elimina capture="environment" en NewChatForm y EditChatForm para que el usuario pueda elegir galería o cámara según el selector del sistema.
+-- La validación de imágenes ahora acepta cualquier image/* y deja que el crop/compresión reduzca la foto; ya no rechaza imágenes grandes antes de procesarlas (probaba con fotos tomadas y fallaba).
+
 ### v1.0.0 - 2025-12-23
 - Actializacion del .readme
 - Limpieza y organización inicial: se elimina stubs vacíos y carpeta backup.
