@@ -147,7 +147,7 @@ export default function ChatView({
         {messagesWithLabels.length > 0 ? (
           messagesWithLabels
         ) : (
-          <div className="h-full flex items-center justify-center text-gray-400 text-sm text-center px-6">
+          <div className="h-full flex items-center justify-center text-foreground text-sm text-center px-6">
             {strings.emptyMessages}
           </div>
         )}

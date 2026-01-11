@@ -30,7 +30,7 @@ export default function OptionsMenu({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="text-white">
+        <Button variant="ghost" size="icon" className="text-foreground">
           <MoreVertical size={24} />
         </Button>
       </DropdownMenuTrigger>

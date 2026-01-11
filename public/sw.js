@@ -1,4 +1,4 @@
-const CACHE_NAME = "whatsapp-notes-v1"
+const CACHE_NAME = "whatsapp-notes-v2"
 const OFFLINE_URLS = ["/", "/manifest.json", "/favicon.ico"]
 
 self.addEventListener("install", (event) => {

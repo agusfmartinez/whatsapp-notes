@@ -24,8 +24,8 @@ export default function FilterTabs({ activeTab = "todos", onTabChange }: FilterT
           variant={activeTab === tab.id ? "default" : "outline"}
           className={
             activeTab === tab.id
-              ? "bg-[#0f3728] hover:bg-green-600 text-white rounded-full px-4 py-2 text-sm"
-              : "border-gray-600 text-gray-300 rounded-full px-4 py-2 text-sm bg-transparent"
+              ? "bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-4 py-2 text-sm"
+              : "border-border text-muted-foreground rounded-full px-4 py-2 text-sm bg-transparent"
           }
           onClick={() => onTabChange?.(tab.id)}
         >

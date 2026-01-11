@@ -55,24 +55,24 @@
 :root {
   --radius: 0.625rem;
 
-  /* Base neutrals */
-  --background: #0b1014;
-  --foreground: #e5e7eb;
-  --card: #0f1720;
-  --card-foreground: #f8fafc;
-  --popover: #0f1720;
-  --popover-foreground: #f8fafc;
-  --muted: #1a222b;
-  --muted-foreground: #9ca3af;
-  --border: #1f2933;
-  --input: #1f2933;
-  --ring: #34d399;
+  /* Light base */
+  --background: #f5f6f7;
+  --foreground: #111827;
+  --card: #ffffff;
+  --card-foreground: #0f1720;
+  --popover: #ffffff;
+  --popover-foreground: #0f1720;
+  --muted: #e5e7eb;
+  --muted-foreground: #6b7280;
+  --border: #e5e7eb;
+  --input: #d1d5db;
+  --ring: #22c55e;
 
   /* Brand accents */
   --primary: #22c55e;
   --primary-foreground: #0b1014;
-  --secondary: #1a222b;
-  --secondary-foreground: #e5e7eb;
+  --secondary: #f3f4f6;
+  --secondary-foreground: #111827;
   --accent: #3b82f6;
   --accent-foreground: #0b1014;
   --destructive: #ef4444;
@@ -82,7 +82,7 @@
   --chart-4: #a855f7;
   --chart-5: #f59e0b;
 
-  /* Sidebar (no se usa, pero mantenemos para compatibilidad) */
+  /* Sidebar (compatibilidad) */
   --sidebar: var(--background);
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--primary);

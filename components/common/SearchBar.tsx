@@ -34,7 +34,7 @@ export default function SearchBar({
             value={inputValue}
             aria-label={ariaLabel}
             onChange={(e) => onChange(e.target.value)}
-            className="bg-[#22292c] border-gray-700 text-white pl-10 rounded-full"
+            className="bg-muted border-border text-foreground pl-10 rounded-full"
           />
         ) : (
           <Input
@@ -43,7 +43,7 @@ export default function SearchBar({
             value={inputValue}
             aria-label={ariaLabel}
             readOnly
-            className="bg-[#22292c] border-gray-700 text-white pl-10 rounded-full"
+            className="bg-muted border-border text-foreground pl-10 rounded-full"
           />
         )}
       </div>

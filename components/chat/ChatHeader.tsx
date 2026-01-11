@@ -43,11 +43,11 @@ export default function ChatHeader({
   ]
 
   return (
-    <div className="flex items-center gap-3 px-4 py-3 bg-[#0b1014]">
+    <div className="flex items-center gap-3 px-4 py-3 bg-background">
       <Button 
         variant="ghost" 
         size="sm" 
-        className="p-0 h-auto text-white hover:bg-transparent"
+        className="p-0 h-auto text-foreground hover:bg-transparent"
         onClick={onBack}
         aria-label="Volver a la lista de chats"
       >
@@ -59,18 +59,18 @@ export default function ChatHeader({
         onClick={() => onAvatarClick(chat.avatar || "/placeholder.svg")}
       >
         <AvatarImage src={chat.avatar || "/placeholder.svg"} alt={chat.name} />
-        <AvatarFallback className="bg-gray-700 text-white">
+        <AvatarFallback className="bg-gray-700 text-foreground">
           {chat.name.charAt(0)}
         </AvatarFallback>
       </Avatar>
       
       <div className="flex-1">
-        <h2 className="font-medium text-white">{chat.name}</h2>
+        <h2 className="font-medium text-foreground">{chat.name}</h2>
       </div>
       
       <div className="flex items-center gap-4">
-        <Video size={24} className="text-white" aria-hidden="true" />
-        <Phone size={24} className="text-white" aria-hidden="true" />
+        <Video size={24} className="text-foreground" aria-hidden="true" />
+        <Phone size={24} className="text-foreground" aria-hidden="true" />
         <OptionsMenu items={menuItems} />
       </div>
     </div>

@@ -10,6 +10,7 @@ import ImageViewerModal from "@/components/modals/ImageViewerModal"
 import OptionsMenu from "@/components/common/OptionsMenu"
 import { Chat } from "@/types/chat"
 import { strings } from "@/strings/es"
+import { useEffect, useState } from "react"
 
 type ChatListViewProps = {
   chats: Chat[]
@@ -28,6 +29,22 @@ export default function ChatListView({
   imageViewer,
   onCloseImage,
 }: ChatListViewProps) {
+  const [isDark, setIsDark] = useState(true)
+
+  useEffect(() => {
+    const root = document.documentElement
+    const saved = localStorage.getItem("theme")
+    const shouldDark = saved ? saved === "dark" : root.classList.contains("dark")
+    setIsDark(shouldDark)
+  }, [])
+
+  const toggleTheme = () => {
+    const root = document.documentElement
+    const nextDark = !isDark
+    setIsDark(nextDark)
+    root.classList.toggle("dark", nextDark)
+    localStorage.setItem("theme", nextDark ? "dark" : "light")
+  }
   return (
     <>
       <div className="bg-background text-foreground h-screen w-screen flex flex-col">
@@ -40,6 +57,7 @@ export default function ChatListView({
               items={[
                 { label: strings.mainMenu.broadcast },
                 { label: strings.mainMenu.linked },
+                { label: isDark ? strings.mainMenu.toggleThemeLight : strings.mainMenu.toggleThemeDark, onSelect: toggleTheme },
                 { label: "__divider__" },
                 { label: strings.mainMenu.settings },
               ]}

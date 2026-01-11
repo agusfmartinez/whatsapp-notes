@@ -27,14 +27,14 @@ export default function ChatListItem({ chat, onClick, onAvatarClick }: ChatListI
         }}
       >
         <AvatarImage src={avatarSrc} alt={`Avatar de ${chat.name}`} />
-        <AvatarFallback className="bg-gray-700 text-white">
+        <AvatarFallback className="bg-gray-700 text-foreground">
           {chat.name.charAt(0)}
         </AvatarFallback>
       </Avatar>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between mb-1">
-          <h3 className="font-medium text-white truncate">{chat.name}</h3>
+          <h3 className="font-medium text-foreground truncate">{chat.name}</h3>
           <div className="flex items-center gap-2">
             {lastMessage && (
               <span className="text-xs text-gray-400">

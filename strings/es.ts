@@ -34,5 +34,7 @@ export const strings = {
     broadcast: "Nueva difusión",
     linked: "Dispositivos vinculados",
     settings: "Configuración",
+    toggleThemeLight: "Cambiar a modo claro",
+    toggleThemeDark: "Cambiar a modo oscuro",
   },
 }
