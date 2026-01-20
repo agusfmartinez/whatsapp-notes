@@ -35,14 +35,14 @@ export default function AvatarCropperModal({
 
   return (
     <div className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-4">
-      <div className="bg-[#0b1014] text-white w-full max-w-md rounded-xl p-4">
+      <div className="bg-background text-foreground w-full max-w-md rounded-xl p-4">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-base font-medium">Recortar avatar</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white">✕</button>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">✕</button>
         </div>
 
         {/* Preview con rectángulo de recorte (solo ilustrativo) */}
-        <div className="relative bg-[#111] rounded-md overflow-hidden aspect-square mb-3">
+        <div className="relative bg-muted rounded-md overflow-hidden aspect-square mb-3">
           {/* imagen completa ajustada a contenedor */}
           <div className="absolute inset-0">
             <Image
@@ -56,7 +56,7 @@ export default function AvatarCropperModal({
           </div>
           {/* Overlay para marcar el recorte: lo representamos visualmente */}
           <div
-            className="absolute border-2 border-[#21c063]/80"
+            className="absolute border-2 border-primary/80"
             style={{
               // convertimos recorte (en coords reales) a coords del contenedor
               left: `${(cropX / cropW) * 100}%`,
@@ -70,7 +70,7 @@ export default function AvatarCropperModal({
         {/* Sliders */}
         <div className="space-y-3">
           <div>
-            <label className="text-sm text-gray-300">Posición X</label>
+            <label className="text-sm text-muted-foreground">Posición X</label>
             <input
               type="range"
               min={0}
@@ -81,7 +81,7 @@ export default function AvatarCropperModal({
             />
           </div>
           <div>
-            <label className="text-sm text-gray-300">Posición Y</label>
+            <label className="text-sm text-muted-foreground">Posición Y</label>
             <input
               type="range"
               min={0}
@@ -92,7 +92,7 @@ export default function AvatarCropperModal({
             />
           </div>
           <div>
-            <label className="text-sm text-gray-300">Tamaño</label>
+            <label className="text-sm text-muted-foreground">Tamaño</label>
             <input
               type="range"
               min={50}
@@ -113,13 +113,13 @@ export default function AvatarCropperModal({
         <div className="flex justify-end gap-2 mt-4">
           <button
             onClick={onClose}
-            className="px-3 py-2 rounded-md bg-gray-700 hover:bg-gray-600"
+            className="px-3 py-2 rounded-md bg-muted hover:bg-muted/80 text-foreground"
           >
             Cancelar
           </button>
           <button
             onClick={onSave}
-            className="px-3 py-2 rounded-md bg-[#21c063] hover:bg-green-600"
+            className="px-3 py-2 rounded-md bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             Recortar y guardar
           </button>

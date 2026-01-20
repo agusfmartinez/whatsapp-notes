@@ -26,13 +26,13 @@ export default function EditChatForm({
   onFileChange
 }: EditChatFormProps) {
   return (
-    <div className="bg-[#0b1014] text-white h-[100dvh] w-screen flex flex-col">
+    <div className="bg-background text-foreground h-[100dvh] w-screen flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3">
         <Button
           variant="ghost"
           size="sm"
-          className="p-0 h-auto text-white hover:bg-transparent"
+          className="p-0 h-auto text-foreground hover:bg-transparent"
           onClick={onBack}
         >
           <ArrowLeft size={24} />
@@ -43,9 +43,9 @@ export default function EditChatForm({
       {/* Form */}
       <form onSubmit={onSubmit} className="px-4 mt-4 space-y-4">
         <div className="space-y-2">
-          <label className="block text-sm text-gray-300">Avatar</label>
+          <label className="block text-sm text-muted-foreground">Avatar</label>
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full overflow-hidden bg-[#22292c] border border-gray-700">
+            <div className="w-12 h-12 rounded-full overflow-hidden bg-muted border border-border">
               {avatarPreview ? (
                 <Image
                   src={avatarPreview}
@@ -77,12 +77,12 @@ export default function EditChatForm({
         </div>
 
         <div>
-          <label className="block text-sm text-gray-300 mb-2">Nombre del chat</label>
+          <label className="block text-sm text-muted-foreground mb-2">Nombre del chat</label>
           <Input
             value={chatName}
             onChange={(e) => setChatName(e.target.value)}
             placeholder="Ej: Ideas, Tareas, Compras…"
-            className="bg-[#22292c] border-gray-700 text-white"
+            className="bg-muted border-border text-foreground"
             autoFocus
           />
         </div>
