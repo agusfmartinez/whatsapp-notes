@@ -16,7 +16,7 @@ export default function ChatListItem({ chat, onClick, onAvatarClick }: ChatListI
 
   return (
     <div
-      className="flex items-center gap-3 px-4 py-3 hover:bg-gray-800 transition-colors cursor-pointer"
+      className="flex items-center gap-3 px-4 py-3 hover:bg-muted/60 transition-colors cursor-pointer"
       onClick={() => onClick(chat)}
     >
       <Avatar

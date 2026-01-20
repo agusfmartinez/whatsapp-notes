@@ -23,6 +23,8 @@ interface ChatHeaderProps {
   onBack: () => void
   onAvatarClick: (avatarSrc: string) => void
   onDeleteChat: (chatId: number) => void
+  onArchiveChat: () => void
+  onUnarchiveChat: () => void
   onToggleComposeMode: () => void
   onEditMessage: () => void
   onDeleteMessage: () => void
@@ -39,6 +41,8 @@ export default function ChatHeader({
   onBack,
   onAvatarClick,
   onDeleteChat,
+  onArchiveChat,
+  onUnarchiveChat,
   onToggleComposeMode,
   onEditMessage,
   onDeleteMessage,
@@ -84,7 +88,9 @@ export default function ChatHeader({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem onClick={onEditChat}>{strings.chatMenu.contactInfo}</DropdownMenuItem>
-            <DropdownMenuItem>{strings.chatMenu.archive}</DropdownMenuItem>
+            <DropdownMenuItem onClick={chat.isArchived ? onUnarchiveChat : onArchiveChat}>
+              {chat.isArchived ? strings.chatMenu.unarchive : strings.chatMenu.archive}
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onDeleteChat(chat.id)} className="text-red-500 focus:text-red-600">
               {strings.chatMenu.delete}
             </DropdownMenuItem>
@@ -115,7 +121,7 @@ export default function ChatHeader({
                   {strings.chatMenu.removeCategory}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={onCreateCategory}>
-                  Nueva categoría
+                  Nueva categoria
                 </DropdownMenuItem>
               </DropdownMenuSubContent>
             </DropdownMenuSub>
@@ -133,3 +139,4 @@ export default function ChatHeader({
     </div>
   )
 }
+

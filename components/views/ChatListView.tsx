@@ -20,6 +20,7 @@ type ChatListViewProps = {
   onChatClick: (chat: Chat) => void
   onAvatarClick: (avatarSrc: string) => void
   onNewChat: () => void
+  onArchivedClick: () => void
   imageViewer: { isOpen: boolean; src: string | null }
   onCloseImage: () => void
   onRequestDeleteCategory: () => void
@@ -33,6 +34,7 @@ export default function ChatListView({
   onChatClick,
   onAvatarClick,
   onNewChat,
+  onArchivedClick,
   imageViewer,
   onCloseImage,
   onRequestDeleteCategory,
@@ -55,24 +57,27 @@ export default function ChatListView({
     localStorage.setItem("theme", nextDark ? "dark" : "light")
   }
 
+  const visibleChats = safeChats.filter(chat => !chat.isArchived)
   const filteredChats = activeTab === "todos"
-    ? safeChats
-    : safeChats.filter(chat => chat.category === activeTab)
+    ? visibleChats
+    : visibleChats.filter(chat => chat.category === activeTab)
 
   const isCustomCategory = !["todos", "no-leidos", "favoritos", "grupos"].includes(activeTab)
 
   const baseTabs = [
     { id: "todos", label: strings.tabs.all },
-    { id: "no-leidos", label: strings.tabs.unread, count: safeChats.filter(chat => chat.category === "no-leidos").length },
-    { id: "favoritos", label: strings.tabs.favorites, count: safeChats.filter(chat => chat.category === "favoritos").length },
-    { id: "grupos", label: strings.tabs.groups, count: safeChats.filter(chat => chat.category === "grupos").length },
+    { id: "no-leidos", label: strings.tabs.unread, count: visibleChats.filter(chat => chat.category === "no-leidos").length },
+    { id: "favoritos", label: strings.tabs.favorites, count: visibleChats.filter(chat => chat.category === "favoritos").length },
+    { id: "grupos", label: strings.tabs.groups, count: visibleChats.filter(chat => chat.category === "grupos").length },
   ]
 
   const extraTabs = (Array.isArray(categories) ? categories : []).map(cat => ({
     id: cat.id,
     label: cat.label,
-    count: safeChats.filter(chat => chat.category === cat.id).length,
+    count: visibleChats.filter(chat => chat.category === cat.id).length,
   }))
+
+  const archivedCount = safeChats.filter(chat => chat.isArchived).length
 
   return (
     <>
@@ -87,7 +92,7 @@ export default function ChatListView({
                 { label: strings.mainMenu.broadcast },
                 { label: strings.mainMenu.linked },
                 { label: isDark ? strings.mainMenu.toggleThemeLight : strings.mainMenu.toggleThemeDark, onSelect: toggleTheme },
-                { label: "Eliminar categoría", onSelect: onRequestDeleteCategory, disabled: !isCustomCategory },
+                { label: "Eliminar categoria", onSelect: onRequestDeleteCategory, disabled: !isCustomCategory },
                 { label: "__divider__" },
                 { label: strings.mainMenu.settings },
               ]}
@@ -105,13 +110,17 @@ export default function ChatListView({
         />
 
         {/* Archived Section */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border/60">
+        <button
+          type="button"
+          className="flex items-center justify-between px-4 py-3 border-b border-border/60 hover:bg-muted/60 transition-colors"
+          onClick={onArchivedClick}
+        >
           <div className="flex items-center gap-3">
             <Archive size={20} className="text-muted-foreground" />
             <span className="text-muted-foreground">{strings.archived}</span>
           </div>
-          <span className="text-muted-foreground text-sm">{strings.archivedCount}</span>
-        </div>
+          <span className="text-muted-foreground text-sm">{archivedCount}</span>
+        </button>
 
         <ChatList
           chats={filteredChats}
@@ -119,7 +128,7 @@ export default function ChatListView({
           onAvatarClick={onAvatarClick}
         />
 
-        <BottomNavigation chatsCount={safeChats.length} />
+        <BottomNavigation chatsCount={visibleChats.length} />
 
         <FloatingActionButton onClick={onNewChat} />
       </div>
@@ -132,3 +141,4 @@ export default function ChatListView({
     </>
   )
 }
+

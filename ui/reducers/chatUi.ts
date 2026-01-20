@@ -1,4 +1,4 @@
-export type View = "chatList" | "chat" | "newChat" | "editChat"
+export type View = "chatList" | "chat" | "newChat" | "editChat" | "archived"
 
 export interface ChatUIState {
   // Vista actual
@@ -51,6 +51,7 @@ export type ChatUIAction =
   | { type: "NAVIGATE_BACK_TO_CHATS" }
   | { type: "NAVIGATE_TO_NEW_CHAT" }
   | { type: "NAVIGATE_TO_EDIT_CHAT" }
+  | { type: "NAVIGATE_TO_ARCHIVED" }
   
   // Composición y mensajes
   | { type: "TOGGLE_COMPOSE_MODE" }
@@ -142,6 +143,15 @@ export function chatUiReducer(state: ChatUIState, action: ChatUIAction): ChatUIS
         ...state, 
         view: "newChat",
         newChat: { name: "", avatarPreview: null }
+      }
+    
+    case "NAVIGATE_TO_ARCHIVED":
+      return {
+        ...state,
+        view: "archived",
+        selectedChatId: null,
+        selectedMsg: null,
+        editingTarget: null
       }
     
     case "NAVIGATE_TO_EDIT_CHAT":

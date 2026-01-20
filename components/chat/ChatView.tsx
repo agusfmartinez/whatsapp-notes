@@ -12,6 +12,8 @@ interface ChatController {
   onBack: () => void
   onAvatarClick: (avatarSrc: string) => void
   onDeleteChat: (chatId: number) => void
+  onArchiveChat: () => void
+  onUnarchiveChat: () => void
   onToggleComposeMode: () => void
   onEditMessage: () => void
   onDeleteMessage: () => void
@@ -129,6 +131,8 @@ export default function ChatView({
         onBack={chatController.onBack}
         onAvatarClick={chatController.onAvatarClick}
         onDeleteChat={chatController.onDeleteChat}
+        onArchiveChat={chatController.onArchiveChat}
+        onUnarchiveChat={chatController.onUnarchiveChat}
         onToggleComposeMode={chatController.onToggleComposeMode}
         onEditMessage={chatController.onEditMessage}
         onDeleteMessage={chatController.onDeleteMessage}

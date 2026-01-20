@@ -13,6 +13,7 @@ export type Message = {
     avatar?: string // dataURL o url
     messages: Message[]
     category?: string
+    isArchived?: boolean
     isPinned?: boolean
     hasSticker?: boolean
     isOfficial?: boolean

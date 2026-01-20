@@ -22,6 +22,7 @@ export const strings = {
   chatMenu: {
     contactInfo: "Info del contacto",
     archive: "Archivar chat",
+    unarchive: "Desarchivar chat",
     delete: "Eliminar chat",
     toggleComposeMe: {
       send: "Enviar mensaje",

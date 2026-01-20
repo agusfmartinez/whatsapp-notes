@@ -14,6 +14,7 @@ import EditChatScreen from "@/components/views/EditChatScreen"
 import ServiceWorkerClient from "@/components/common/ServiceWorkerClient"
 import NewCategoryModal from "@/components/modals/NewCategoryModal"
 import ConfirmDeleteCategoryModal from "@/components/modals/ConfirmDeleteCategoryModal"
+import ArchivedChatsView from "@/components/views/ArchivedChatsView"
 
 export default function WhatsAppInterface() {
   const [uiState, dispatch] = useReducer(chatUiReducer, initialState)
@@ -165,6 +166,18 @@ export default function WhatsAppInterface() {
     updateChat(selectedChat.id, { category: category || undefined })
   }, [selectedChat, updateChat])
 
+  const archiveSelectedChat = useCallback(() => {
+    if (!selectedChat) return
+    updateChat(selectedChat.id, { category: undefined, isArchived: true })
+    dispatch({ type: "NAVIGATE_BACK_TO_CHATS" })
+  }, [selectedChat, updateChat])
+
+  const unarchiveSelectedChat = useCallback(() => {
+    if (!selectedChat) return
+    updateChat(selectedChat.id, { isArchived: false })
+    dispatch({ type: "NAVIGATE_BACK_TO_CHATS" })
+  }, [selectedChat, updateChat])
+
   const openNewCategory = useCallback(() => {
     setNewCategoryName("")
     setNewCategoryOpen(true)
@@ -240,6 +253,8 @@ export default function WhatsAppInterface() {
       dispatch({ type: "OPEN_IMAGE_VIEWER", payload: avatarSrc })
     },
     onDeleteChat: requestDeleteChat,
+    onArchiveChat: archiveSelectedChat,
+    onUnarchiveChat: unarchiveSelectedChat,
     onToggleComposeMode: () => dispatch({ type: "TOGGLE_COMPOSE_MODE" }),
     onEditMessage: beginEditSelectedMessage,
     onDeleteMessage: deleteSelectedMessage,
@@ -265,6 +280,8 @@ export default function WhatsAppInterface() {
     deleteSelectedMessage,
     handleEditChat,
     assignCategory,
+    archiveSelectedChat,
+    unarchiveSelectedChat,
     categories,
     openNewCategory,
     saveEditedMessage,
@@ -343,6 +360,17 @@ export default function WhatsAppInterface() {
     )
   }
 
+  if (uiState.view === "archived") {
+    return (
+      <ArchivedChatsView
+        chats={chats.filter(chat => chat.isArchived)}
+        onBack={() => dispatch({ type: "NAVIGATE_BACK_TO_CHATS" })}
+        onChatClick={handleChatClick}
+        onAvatarClick={(avatarSrc) => dispatch({ type: "OPEN_IMAGE_VIEWER", payload: avatarSrc })}
+      />
+    )
+  }
+
   return (
     <>
       <ServiceWorkerClient />
@@ -369,6 +397,7 @@ export default function WhatsAppInterface() {
           dispatch({ type: "OPEN_IMAGE_VIEWER", payload: avatarSrc })
         }}
         onNewChat={() => dispatch({ type: "NAVIGATE_TO_NEW_CHAT" })}
+        onArchivedClick={() => dispatch({ type: "NAVIGATE_TO_ARCHIVED" })}
         imageViewer={uiState.imageViewer}
         onCloseImage={() => dispatch({ type: "CLOSE_IMAGE_VIEWER" })}
         onRequestDeleteCategory={requestDeleteCategory}
