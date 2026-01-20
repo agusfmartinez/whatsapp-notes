@@ -30,6 +30,7 @@ export default function ChatListView({
   onCloseImage,
 }: ChatListViewProps) {
   const [isDark, setIsDark] = useState(true)
+  const [activeTab, setActiveTab] = useState("todos")
 
   useEffect(() => {
     const root = document.documentElement
@@ -45,6 +46,17 @@ export default function ChatListView({
     root.classList.toggle("dark", nextDark)
     localStorage.setItem("theme", nextDark ? "dark" : "light")
   }
+
+  const filteredChats = activeTab === "todos"
+    ? chats
+    : chats.filter(chat => chat.category === activeTab)
+
+  const counts = {
+    unread: chats.filter(chat => chat.category === "no-leidos").length,
+    favorites: chats.filter(chat => chat.category === "favoritos").length,
+    groups: chats.filter(chat => chat.category === "grupos").length,
+  }
+
   return (
     <>
       <div className="bg-background text-foreground h-screen w-screen flex flex-col">
@@ -67,7 +79,7 @@ export default function ChatListView({
 
         <SearchBar />
 
-        <FilterTabs />
+        <FilterTabs activeTab={activeTab} onTabChange={setActiveTab} counts={counts} />
 
         {/* Archived Section */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border/60">
@@ -79,7 +91,7 @@ export default function ChatListView({
         </div>
 
         <ChatList
-          chats={chats}
+          chats={filteredChats}
           onChatClick={onChatClick}
           onAvatarClick={onAvatarClick}
         />

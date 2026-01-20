@@ -27,6 +27,8 @@ export const strings = {
       send: "Enviar mensaje",
       receive: "Recibir mensaje",
     },
+    addTo: "Añadir a",
+    removeCategory: "Quitar categoría",
     editMessage: "Editar mensaje",
     deleteMessage: "Borrar mensaje",
   },

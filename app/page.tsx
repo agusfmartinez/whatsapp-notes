@@ -136,6 +136,11 @@ export default function WhatsAppInterface() {
     dispatch({ type: "NAVIGATE_TO_EDIT_CHAT" })
   }, [selectedChat])
 
+  const assignCategory = useCallback((category: "no-leidos" | "favoritos" | "grupos" | null) => {
+    if (!selectedChat) return
+    updateChat(selectedChat.id, { category: category || undefined })
+  }, [selectedChat, updateChat])
+
   const handleSaveEditChat = (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedChat || !uiState.editChat.name.trim()) return
@@ -182,6 +187,7 @@ export default function WhatsAppInterface() {
     onEditMessage: beginEditSelectedMessage,
     onDeleteMessage: deleteSelectedMessage,
     onEditChat: handleEditChat,
+    onAssignCategory: assignCategory,
     onSendMessage: (text: string, asMe: boolean) => {
       if (selectedChat) {
         sendMessage(selectedChat.id, text, asMe)
@@ -199,6 +205,7 @@ export default function WhatsAppInterface() {
     beginEditSelectedMessage,
     deleteSelectedMessage,
     handleEditChat,
+    assignCategory,
     saveEditedMessage,
     startSelectLongPress,
     cancelLongPress

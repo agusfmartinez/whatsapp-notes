@@ -12,6 +12,7 @@ export type Message = {
     name: string
     avatar?: string // dataURL o url
     messages: Message[]
+    category?: "no-leidos" | "favoritos" | "grupos"
     isPinned?: boolean
     hasSticker?: boolean
     isOfficial?: boolean

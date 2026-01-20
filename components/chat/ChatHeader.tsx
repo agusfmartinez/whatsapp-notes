@@ -2,10 +2,19 @@
 
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { ArrowLeft, Video, Phone } from "lucide-react"
+import { ArrowLeft, Video, Phone, MoreVertical } from "lucide-react"
 import { Chat } from "@/types/chat"
-import OptionsMenu from "@/components/common/OptionsMenu"
 import { strings } from "@/strings/es"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface ChatHeaderProps {
   chat: Chat
@@ -18,6 +27,7 @@ interface ChatHeaderProps {
   onEditMessage: () => void
   onDeleteMessage: () => void
   onEditChat: () => void
+  onAssignCategory: (category: "no-leidos" | "favoritos" | "grupos" | null) => void
 }
 
 export default function ChatHeader({
@@ -30,18 +40,9 @@ export default function ChatHeader({
   onToggleComposeMode,
   onEditMessage,
   onDeleteMessage,
-  onEditChat
+  onEditChat,
+  onAssignCategory
 }: ChatHeaderProps) {
-  const menuItems = [
-    { label: strings.chatMenu.contactInfo, onSelect: onEditChat },
-    { label: strings.chatMenu.archive },
-    { label: strings.chatMenu.delete, onSelect: () => onDeleteChat(chat.id), danger: true },
-    { label: composeAsMe ? strings.chatMenu.toggleComposeMe.receive : strings.chatMenu.toggleComposeMe.send, onSelect: onToggleComposeMode },
-    { label: "__divider__" },
-    { label: strings.chatMenu.editMessage, onSelect: onEditMessage, disabled: !selectedMsg },
-    { label: strings.chatMenu.deleteMessage, onSelect: onDeleteMessage, disabled: !selectedMsg },
-  ]
-
   return (
     <div className="flex items-center gap-3 px-4 py-3 bg-background">
       <Button 
@@ -71,7 +72,50 @@ export default function ChatHeader({
       <div className="flex items-center gap-4">
         <Video size={24} className="text-foreground" aria-hidden="true" />
         <Phone size={24} className="text-foreground" aria-hidden="true" />
-        <OptionsMenu items={menuItems} />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="text-foreground" aria-label="Opciones de chat">
+              <MoreVertical size={24} aria-hidden="true" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem onClick={onEditChat}>{strings.chatMenu.contactInfo}</DropdownMenuItem>
+            <DropdownMenuItem>{strings.chatMenu.archive}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onDeleteChat(chat.id)} className="text-red-500 focus:text-red-600">
+              {strings.chatMenu.delete}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onToggleComposeMode}>
+              {composeAsMe ? strings.chatMenu.toggleComposeMe.receive : strings.chatMenu.toggleComposeMe.send}
+            </DropdownMenuItem>
+
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>{strings.chatMenu.addTo}</DropdownMenuSubTrigger>
+              <DropdownMenuSubContent className="w-44">
+                <DropdownMenuItem onClick={() => onAssignCategory("no-leidos")}>
+                  {strings.tabs.unread}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onAssignCategory("favoritos")}>
+                  {strings.tabs.favorites}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onAssignCategory("grupos")}>
+                  {strings.tabs.groups}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => onAssignCategory(null)}>
+                  {strings.chatMenu.removeCategory}
+                </DropdownMenuItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+
+            <DropdownMenuSeparator />
+            <DropdownMenuItem disabled={!selectedMsg} onClick={onEditMessage}>
+              {strings.chatMenu.editMessage}
+            </DropdownMenuItem>
+            <DropdownMenuItem disabled={!selectedMsg} onClick={onDeleteMessage}>
+              {strings.chatMenu.deleteMessage}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   )

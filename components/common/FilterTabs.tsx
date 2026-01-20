@@ -6,14 +6,19 @@ import { strings } from "@/strings/es"
 interface FilterTabsProps {
   activeTab?: string
   onTabChange?: (tab: string) => void
+  counts?: {
+    unread?: number
+    favorites?: number
+    groups?: number
+  }
 }
 
-export default function FilterTabs({ activeTab = "todos", onTabChange }: FilterTabsProps) {
+export default function FilterTabs({ activeTab = "todos", onTabChange, counts }: FilterTabsProps) {
   const tabs = [
     { id: "todos", label: strings.tabs.all },
-    { id: "no-leidos", label: strings.tabs.unread, count: 0 },
-    { id: "favoritos", label: strings.tabs.favorites, count: 0 },
-    { id: "grupos", label: strings.tabs.groups, count: 0 }
+    { id: "no-leidos", label: strings.tabs.unread, count: counts?.unread ?? 0 },
+    { id: "favoritos", label: strings.tabs.favorites, count: counts?.favorites ?? 0 },
+    { id: "grupos", label: strings.tabs.groups, count: counts?.groups ?? 0 }
   ]
 
   return (

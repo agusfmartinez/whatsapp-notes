@@ -16,6 +16,7 @@ interface ChatController {
   onEditMessage: () => void
   onDeleteMessage: () => void
   onEditChat: () => void
+  onAssignCategory: (category: "no-leidos" | "favoritos" | "grupos" | null) => void
   onSendMessage: (text: string, asMe: boolean) => void
   onSaveEdit: () => void
   onStartSelectLongPress: (chatId: number, msgId: number) => void
@@ -130,6 +131,7 @@ export default function ChatView({
         onEditMessage={chatController.onEditMessage}
         onDeleteMessage={chatController.onDeleteMessage}
         onEditChat={chatController.onEditChat}
+        onAssignCategory={chatController.onAssignCategory}
       />
 
       {/* Messages (scrolleable) */}
