@@ -1,6 +1,6 @@
 "use client"
 
-import { useReducer, useMemo, useState, useCallback } from "react"
+import { useReducer, useMemo, useState, useCallback, useEffect } from "react"
 import { useChats } from "@/hooks/useChats"
 import { useKeyboardOffset } from "@/hooks/useKeyboardOffset"
 import { useLongPress } from "@/hooks/useLongPress"
@@ -12,11 +12,15 @@ import ChatScreen from "@/components/views/ChatScreen"
 import NewChatScreen from "@/components/views/NewChatScreen"
 import EditChatScreen from "@/components/views/EditChatScreen"
 import ServiceWorkerClient from "@/components/common/ServiceWorkerClient"
+import NewCategoryModal from "@/components/modals/NewCategoryModal"
 
 export default function WhatsAppInterface() {
   const [uiState, dispatch] = useReducer(chatUiReducer, initialState)
   const [inputValue, setInputValue] = useState("")
   const { chats, createChat, deleteChat, sendMessage, deleteMessage, editMessage, updateChat } = useChats()
+  const [categories, setCategories] = useState<{ id: string; label: string }[]>([])
+  const [newCategoryOpen, setNewCategoryOpen] = useState(false)
+  const [newCategoryName, setNewCategoryName] = useState("")
   const kbOffset = useKeyboardOffset()
   const { startLongPress, cancelLongPress } = useLongPress()
 
@@ -25,6 +29,21 @@ export default function WhatsAppInterface() {
     if (!uiState.selectedChatId) return null
     return chats.find(c => c.id === uiState.selectedChatId) || null
   }, [chats, uiState.selectedChatId])
+
+  useEffect(() => {
+    const saved = localStorage.getItem("categories")
+    if (saved) {
+      try {
+        setCategories(JSON.parse(saved))
+      } catch {
+        setCategories([])
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem("categories", JSON.stringify(categories))
+  }, [categories])
 
   const openCropperFor = async (file: File, target: "new" | "edit") => {
     const raw = await fileToDataURL(file)
@@ -136,10 +155,25 @@ export default function WhatsAppInterface() {
     dispatch({ type: "NAVIGATE_TO_EDIT_CHAT" })
   }, [selectedChat])
 
-  const assignCategory = useCallback((category: "no-leidos" | "favoritos" | "grupos" | null) => {
+  const assignCategory = useCallback((category: string | null) => {
     if (!selectedChat) return
     updateChat(selectedChat.id, { category: category || undefined })
   }, [selectedChat, updateChat])
+
+  const openNewCategory = useCallback(() => {
+    setNewCategoryName("")
+    setNewCategoryOpen(true)
+  }, [])
+
+  const saveNewCategory = useCallback(() => {
+    const name = newCategoryName.trim()
+    if (!name) return
+    const baseId = name.toLowerCase().replace(/\s+/g, "-")
+    const exists = categories.some(c => c.id === baseId)
+    const id = exists ? `${baseId}-${Date.now()}` : baseId
+    setCategories(prev => [...prev, { id, label: name }])
+    setNewCategoryOpen(false)
+  }, [newCategoryName, categories])
 
   const handleSaveEditChat = (e: React.FormEvent) => {
     e.preventDefault()
@@ -188,6 +222,8 @@ export default function WhatsAppInterface() {
     onDeleteMessage: deleteSelectedMessage,
     onEditChat: handleEditChat,
     onAssignCategory: assignCategory,
+    categories,
+    onCreateCategory: openNewCategory,
     onSendMessage: (text: string, asMe: boolean) => {
       if (selectedChat) {
         sendMessage(selectedChat.id, text, asMe)
@@ -206,6 +242,8 @@ export default function WhatsAppInterface() {
     deleteSelectedMessage,
     handleEditChat,
     assignCategory,
+    categories,
+    openNewCategory,
     saveEditedMessage,
     startSelectLongPress,
     cancelLongPress
@@ -255,29 +293,46 @@ export default function WhatsAppInterface() {
 
   if (uiState.view === "chat" && selectedChat) {
     return (
-      <ChatScreen
-        chat={selectedChat}
-        composeAsMe={uiState.composeAsMe}
-        inputValue={inputValue}
-        setInputValue={setInputValue}
-        selectedMsg={uiState.selectedMsg}
-        editingTarget={uiState.editingTarget}
-        kbOffset={kbOffset}
-        chatController={chatController}
-        imageViewer={uiState.imageViewer}
-        onCloseImage={() => dispatch({ type: "CLOSE_IMAGE_VIEWER" })}
-        confirmDelete={uiState.confirmDelete}
-        onCancelDelete={cancelDeleteChat}
-        onConfirmDelete={confirmDeleteChat}
-      />
+      <>
+        <ChatScreen
+          chat={selectedChat}
+          composeAsMe={uiState.composeAsMe}
+          inputValue={inputValue}
+          setInputValue={setInputValue}
+          selectedMsg={uiState.selectedMsg}
+          editingTarget={uiState.editingTarget}
+          kbOffset={kbOffset}
+          chatController={chatController}
+          imageViewer={uiState.imageViewer}
+          onCloseImage={() => dispatch({ type: "CLOSE_IMAGE_VIEWER" })}
+          confirmDelete={uiState.confirmDelete}
+          onCancelDelete={cancelDeleteChat}
+          onConfirmDelete={confirmDeleteChat}
+        />
+        <NewCategoryModal
+          isOpen={newCategoryOpen}
+          name={newCategoryName}
+          onNameChange={setNewCategoryName}
+          onCancel={() => setNewCategoryOpen(false)}
+          onSave={saveNewCategory}
+        />
+      </>
     )
   }
 
   return (
     <>
       <ServiceWorkerClient />
+      <NewCategoryModal
+        isOpen={newCategoryOpen}
+        name={newCategoryName}
+        onNameChange={setNewCategoryName}
+        onCancel={() => setNewCategoryOpen(false)}
+        onSave={saveNewCategory}
+      />
       <ChatListView
         chats={chats}
+        categories={categories}
         onChatClick={handleChatClick}
         onAvatarClick={(avatarSrc) => {
           dispatch({ type: "OPEN_IMAGE_VIEWER", payload: avatarSrc })

@@ -3,27 +3,31 @@
 import { Button } from "@/components/ui/button"
 import { strings } from "@/strings/es"
 
+type CategoryTab = { id: string; label: string; count?: number }
+
 interface FilterTabsProps {
   activeTab?: string
   onTabChange?: (tab: string) => void
-  counts?: {
-    unread?: number
-    favorites?: number
-    groups?: number
-  }
+  baseTabs?: CategoryTab[]
+  extraTabs?: CategoryTab[]
 }
 
-export default function FilterTabs({ activeTab = "todos", onTabChange, counts }: FilterTabsProps) {
-  const tabs = [
+export default function FilterTabs({
+  activeTab = "todos",
+  onTabChange,
+  baseTabs,
+  extraTabs = [],
+}: FilterTabsProps) {
+  const tabs = baseTabs ?? [
     { id: "todos", label: strings.tabs.all },
-    { id: "no-leidos", label: strings.tabs.unread, count: counts?.unread ?? 0 },
-    { id: "favoritos", label: strings.tabs.favorites, count: counts?.favorites ?? 0 },
-    { id: "grupos", label: strings.tabs.groups, count: counts?.groups ?? 0 }
+    { id: "no-leidos", label: strings.tabs.unread, count: 0 },
+    { id: "favoritos", label: strings.tabs.favorites, count: 0 },
+    { id: "grupos", label: strings.tabs.groups, count: 0 },
   ]
 
   return (
     <div className="flex gap-2 px-4 mb-4 overflow-x-auto no-scrollbar">
-      {tabs.map((tab) => (
+      {[...tabs, ...extraTabs].map((tab) => (
         <Button
           key={tab.id}
           variant={activeTab === tab.id ? "default" : "outline"}

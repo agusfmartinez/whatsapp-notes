@@ -16,7 +16,9 @@ interface ChatController {
   onEditMessage: () => void
   onDeleteMessage: () => void
   onEditChat: () => void
-  onAssignCategory: (category: "no-leidos" | "favoritos" | "grupos" | null) => void
+  onAssignCategory: (category: string | null) => void
+  categories: { id: string; label: string }[]
+  onCreateCategory: () => void
   onSendMessage: (text: string, asMe: boolean) => void
   onSaveEdit: () => void
   onStartSelectLongPress: (chatId: number, msgId: number) => void
@@ -132,6 +134,8 @@ export default function ChatView({
         onDeleteMessage={chatController.onDeleteMessage}
         onEditChat={chatController.onEditChat}
         onAssignCategory={chatController.onAssignCategory}
+        categories={chatController.categories}
+        onCreateCategory={chatController.onCreateCategory}
       />
 
       {/* Messages (scrolleable) */}

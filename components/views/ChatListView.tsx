@@ -14,6 +14,7 @@ import { useEffect, useState } from "react"
 
 type ChatListViewProps = {
   chats: Chat[]
+  categories?: { id: string; label: string }[]
   onChatClick: (chat: Chat) => void
   onAvatarClick: (avatarSrc: string) => void
   onNewChat: () => void
@@ -23,6 +24,7 @@ type ChatListViewProps = {
 
 export default function ChatListView({
   chats,
+  categories = [],
   onChatClick,
   onAvatarClick,
   onNewChat,
@@ -31,6 +33,7 @@ export default function ChatListView({
 }: ChatListViewProps) {
   const [isDark, setIsDark] = useState(true)
   const [activeTab, setActiveTab] = useState("todos")
+  const safeChats = Array.isArray(chats) ? chats : []
 
   useEffect(() => {
     const root = document.documentElement
@@ -48,14 +51,33 @@ export default function ChatListView({
   }
 
   const filteredChats = activeTab === "todos"
-    ? chats
-    : chats.filter(chat => chat.category === activeTab)
+    ? safeChats
+    : safeChats.filter(chat => chat.category === activeTab)
 
-  const counts = {
-    unread: chats.filter(chat => chat.category === "no-leidos").length,
-    favorites: chats.filter(chat => chat.category === "favoritos").length,
-    groups: chats.filter(chat => chat.category === "grupos").length,
-  }
+  const baseTabs = (() => {
+    const list = Array.isArray(chats) ? chats : []
+    return [
+      { id: "todos", label: strings.tabs.all },
+      { id: "no-leidos", label: strings.tabs.unread, count: list.filter(chat => chat.category === "no-leidos").length },
+      { id: "favoritos", label: strings.tabs.favorites, count: list.filter(chat => chat.category === "favoritos").length },
+      { id: "grupos", label: strings.tabs.groups, count: list.filter(chat => chat.category === "grupos").length },
+    ]
+  })()
+
+  const extraTabs = (() => {
+    const list = Array.isArray(chats) ? chats : []
+    const tabs: { id: string; label: string; count?: number }[] = []
+    if (Array.isArray(categories)) {
+      for (const cat of categories) {
+        tabs.push({
+          id: cat.id,
+          label: cat.label,
+          count: list.filter(chat => chat.category === cat.id).length,
+        })
+      }
+    }
+    return tabs
+  })()
 
   return (
     <>
@@ -79,7 +101,12 @@ export default function ChatListView({
 
         <SearchBar />
 
-        <FilterTabs activeTab={activeTab} onTabChange={setActiveTab} counts={counts} />
+        <FilterTabs
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          baseTabs={baseTabs}
+          extraTabs={extraTabs}
+        />
 
         {/* Archived Section */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border/60">
@@ -96,7 +123,7 @@ export default function ChatListView({
           onAvatarClick={onAvatarClick}
         />
 
-        <BottomNavigation chatsCount={chats.length} />
+        <BottomNavigation chatsCount={safeChats.length} />
 
         <FloatingActionButton onClick={onNewChat} />
       </div>

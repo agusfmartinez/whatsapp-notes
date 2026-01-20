@@ -27,7 +27,9 @@ interface ChatHeaderProps {
   onEditMessage: () => void
   onDeleteMessage: () => void
   onEditChat: () => void
-  onAssignCategory: (category: "no-leidos" | "favoritos" | "grupos" | null) => void
+  onAssignCategory: (category: string | null) => void
+  categories: { id: string; label: string }[]
+  onCreateCategory: () => void
 }
 
 export default function ChatHeader({
@@ -41,7 +43,9 @@ export default function ChatHeader({
   onEditMessage,
   onDeleteMessage,
   onEditChat,
-  onAssignCategory
+  onAssignCategory,
+  categories = [],
+  onCreateCategory
 }: ChatHeaderProps) {
   return (
     <div className="flex items-center gap-3 px-4 py-3 bg-background">
@@ -100,9 +104,18 @@ export default function ChatHeader({
                 <DropdownMenuItem onClick={() => onAssignCategory("grupos")}>
                   {strings.tabs.groups}
                 </DropdownMenuItem>
+                {Array.isArray(categories) && categories.length > 0 && <DropdownMenuSeparator />}
+                {Array.isArray(categories) && categories.map((cat) => (
+                  <DropdownMenuItem key={cat.id} onClick={() => onAssignCategory(cat.id)}>
+                    {cat.label}
+                  </DropdownMenuItem>
+                ))}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => onAssignCategory(null)}>
                   {strings.chatMenu.removeCategory}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onCreateCategory}>
+                  Nueva categoría
                 </DropdownMenuItem>
               </DropdownMenuSubContent>
             </DropdownMenuSub>
