@@ -13,14 +13,19 @@ import NewChatScreen from "@/components/views/NewChatScreen"
 import EditChatScreen from "@/components/views/EditChatScreen"
 import ServiceWorkerClient from "@/components/common/ServiceWorkerClient"
 import NewCategoryModal from "@/components/modals/NewCategoryModal"
+import ConfirmDeleteCategoryModal from "@/components/modals/ConfirmDeleteCategoryModal"
 
 export default function WhatsAppInterface() {
   const [uiState, dispatch] = useReducer(chatUiReducer, initialState)
   const [inputValue, setInputValue] = useState("")
-  const { chats, createChat, deleteChat, sendMessage, deleteMessage, editMessage, updateChat } = useChats()
+  const { chats, setChats, createChat, deleteChat, sendMessage, deleteMessage, editMessage, updateChat } = useChats()
   const [categories, setCategories] = useState<{ id: string; label: string }[]>([])
   const [newCategoryOpen, setNewCategoryOpen] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState("")
+  const [deleteCategoryOpen, setDeleteCategoryOpen] = useState(false)
+  const [deleteCategoryId, setDeleteCategoryId] = useState<string | null>(null)
+  const [deleteCategoryName, setDeleteCategoryName] = useState("")
+  const [activeTab, setActiveTab] = useState("todos")
   const kbOffset = useKeyboardOffset()
   const { startLongPress, cancelLongPress } = useLongPress()
 
@@ -174,6 +179,24 @@ export default function WhatsAppInterface() {
     setCategories(prev => [...prev, { id, label: name }])
     setNewCategoryOpen(false)
   }, [newCategoryName, categories])
+
+  const requestDeleteCategory = useCallback(() => {
+    if (activeTab === "todos" || activeTab === "no-leidos" || activeTab === "favoritos" || activeTab === "grupos") return
+    const found = categories.find(c => c.id === activeTab)
+    setDeleteCategoryId(activeTab)
+    setDeleteCategoryName(found?.label || "")
+    setDeleteCategoryOpen(true)
+  }, [activeTab, categories])
+
+  const confirmDeleteCategory = useCallback(() => {
+    if (!deleteCategoryId) return
+    setCategories(prev => prev.filter(c => c.id !== deleteCategoryId))
+    setChats(prev => prev.map(c => (c.category === deleteCategoryId ? { ...c, category: undefined } : c)))
+    setDeleteCategoryOpen(false)
+    setDeleteCategoryId(null)
+    setDeleteCategoryName("")
+    setActiveTab("todos")
+  }, [deleteCategoryId, setChats])
 
   const handleSaveEditChat = (e: React.FormEvent) => {
     e.preventDefault()
@@ -330,9 +353,17 @@ export default function WhatsAppInterface() {
         onCancel={() => setNewCategoryOpen(false)}
         onSave={saveNewCategory}
       />
+      <ConfirmDeleteCategoryModal
+        isOpen={deleteCategoryOpen}
+        categoryName={deleteCategoryName}
+        onCancel={() => setDeleteCategoryOpen(false)}
+        onConfirm={confirmDeleteCategory}
+      />
       <ChatListView
         chats={chats}
         categories={categories}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
         onChatClick={handleChatClick}
         onAvatarClick={(avatarSrc) => {
           dispatch({ type: "OPEN_IMAGE_VIEWER", payload: avatarSrc })
@@ -340,6 +371,7 @@ export default function WhatsAppInterface() {
         onNewChat={() => dispatch({ type: "NAVIGATE_TO_NEW_CHAT" })}
         imageViewer={uiState.imageViewer}
         onCloseImage={() => dispatch({ type: "CLOSE_IMAGE_VIEWER" })}
+        onRequestDeleteCategory={requestDeleteCategory}
       />
     </>
   )

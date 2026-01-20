@@ -15,24 +15,29 @@ import { useEffect, useState } from "react"
 type ChatListViewProps = {
   chats: Chat[]
   categories?: { id: string; label: string }[]
+  activeTab: string
+  onTabChange: (tab: string) => void
   onChatClick: (chat: Chat) => void
   onAvatarClick: (avatarSrc: string) => void
   onNewChat: () => void
   imageViewer: { isOpen: boolean; src: string | null }
   onCloseImage: () => void
+  onRequestDeleteCategory: () => void
 }
 
 export default function ChatListView({
   chats,
   categories = [],
+  activeTab,
+  onTabChange,
   onChatClick,
   onAvatarClick,
   onNewChat,
   imageViewer,
   onCloseImage,
+  onRequestDeleteCategory,
 }: ChatListViewProps) {
   const [isDark, setIsDark] = useState(true)
-  const [activeTab, setActiveTab] = useState("todos")
   const safeChats = Array.isArray(chats) ? chats : []
 
   useEffect(() => {
@@ -54,30 +59,20 @@ export default function ChatListView({
     ? safeChats
     : safeChats.filter(chat => chat.category === activeTab)
 
-  const baseTabs = (() => {
-    const list = Array.isArray(chats) ? chats : []
-    return [
-      { id: "todos", label: strings.tabs.all },
-      { id: "no-leidos", label: strings.tabs.unread, count: list.filter(chat => chat.category === "no-leidos").length },
-      { id: "favoritos", label: strings.tabs.favorites, count: list.filter(chat => chat.category === "favoritos").length },
-      { id: "grupos", label: strings.tabs.groups, count: list.filter(chat => chat.category === "grupos").length },
-    ]
-  })()
+  const isCustomCategory = !["todos", "no-leidos", "favoritos", "grupos"].includes(activeTab)
 
-  const extraTabs = (() => {
-    const list = Array.isArray(chats) ? chats : []
-    const tabs: { id: string; label: string; count?: number }[] = []
-    if (Array.isArray(categories)) {
-      for (const cat of categories) {
-        tabs.push({
-          id: cat.id,
-          label: cat.label,
-          count: list.filter(chat => chat.category === cat.id).length,
-        })
-      }
-    }
-    return tabs
-  })()
+  const baseTabs = [
+    { id: "todos", label: strings.tabs.all },
+    { id: "no-leidos", label: strings.tabs.unread, count: safeChats.filter(chat => chat.category === "no-leidos").length },
+    { id: "favoritos", label: strings.tabs.favorites, count: safeChats.filter(chat => chat.category === "favoritos").length },
+    { id: "grupos", label: strings.tabs.groups, count: safeChats.filter(chat => chat.category === "grupos").length },
+  ]
+
+  const extraTabs = (Array.isArray(categories) ? categories : []).map(cat => ({
+    id: cat.id,
+    label: cat.label,
+    count: safeChats.filter(chat => chat.category === cat.id).length,
+  }))
 
   return (
     <>
@@ -92,6 +87,7 @@ export default function ChatListView({
                 { label: strings.mainMenu.broadcast },
                 { label: strings.mainMenu.linked },
                 { label: isDark ? strings.mainMenu.toggleThemeLight : strings.mainMenu.toggleThemeDark, onSelect: toggleTheme },
+                { label: "Eliminar categoría", onSelect: onRequestDeleteCategory, disabled: !isCustomCategory },
                 { label: "__divider__" },
                 { label: strings.mainMenu.settings },
               ]}
@@ -103,7 +99,7 @@ export default function ChatListView({
 
         <FilterTabs
           activeTab={activeTab}
-          onTabChange={setActiveTab}
+          onTabChange={onTabChange}
           baseTabs={baseTabs}
           extraTabs={extraTabs}
         />
