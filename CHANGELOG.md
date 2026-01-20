@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.1.0 - 2026-01-20
+- Switch para cambiar entre modo oscuro y modo claro.
+- Categorias: Agregar chat a una categoría existente, crear nueva categoría, eliminar categoría.
+- Chats archivados: Seccion de chats archivados, agregar chat a Archivados, quitar chat de Archivados.
+
 ## v1.0.1 - 2025-12-24
 - Fix comportamientos en Android:
 -- Los inputs de avatar ya no fuerzan la cámara: se elimina capture="environment" en NewChatForm y EditChatForm para que el usuario pueda elegir galería o cámara según el selector del sistema.
