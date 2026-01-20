@@ -87,7 +87,7 @@ export function useChats() {
     )
   }
 
-  const updateChat = (chatId: number, updates: Partial<Pick<Chat, "name" | "avatar" | "category">>) => {
+  const updateChat = (chatId: number, updates: Partial<Pick<Chat, "name" | "avatar" | "category" | "isArchived">>) => {
     setChats(prev =>
       prev.map(chat =>
         chat.id === chatId
