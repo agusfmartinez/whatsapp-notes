@@ -26,15 +26,18 @@ refactorizacion en componentes
 pagina para editar chat (imagen de perfil y nombre)
 al eliminar un chat, modal para confirmar y al aceptar que vuelva a la lista de chats
 
+
+20/01
+- personalizacion de colores (modo claro y modo oscuro)
+- categorias: agregar chat a categoria, crear nueva categoria, eliminar categoria
+- seccion de chats archivados, archivar chat, desarchivar chat 
+
 proximos cambios
 
 
 en menu "..." pagina principal:
-- ver tema personalizacion de colores (modo claro y modo oscuro)
-- ver tema de importar y exportar las notas como archivo
-- ver tema categorias
-- ver tema archivados
 - ver tema modo android/ios
+- ver tema de importar y exportar las notas como archivo
 - ver tema cambiar el nombre a "WhatsApp"
 - agregar una seccion de "about"
 
@@ -49,6 +52,7 @@ en chats, indicador de "hoy", "ayer", etc
 guardar ultimo chat abierto
 activar/desactivar visto, setear tiempo
 chats con candado y clave (modal)
+corregir hover azul en modo claro
 
 
 en menu "..." chats:
