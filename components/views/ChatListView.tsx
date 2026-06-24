@@ -1,6 +1,7 @@
 "use client"
 
-import { Camera, Archive } from "lucide-react"
+import { Camera, Archive, Plus } from "lucide-react"
+import type { Platform } from "@/hooks/useSettings"
 import ChatList from "@/components/chat/ChatList"
 import SearchBar from "@/components/common/SearchBar"
 import FilterTabs from "@/components/common/FilterTabs"
@@ -28,6 +29,7 @@ type ChatListViewProps = {
   onImportData: (data: { chats?: unknown; categories?: unknown }) => void
   appName: string
   onOpenSettings: () => void
+  platform: Platform
 }
 
 export default function ChatListView({
@@ -45,7 +47,9 @@ export default function ChatListView({
   onImportData,
   appName,
   onOpenSettings,
+  platform,
 }: ChatListViewProps) {
+  const isIOS = platform === "ios"
   const [isDark, setIsDark] = useState(true)
   const [search, setSearch] = useState("")
   const [aboutOpen, setAboutOpen] = useState(false)
@@ -131,38 +135,58 @@ export default function ChatListView({
 
   const archivedCount = safeChats.filter(chat => chat.isArchived).length
 
+  const menuItems = [
+    { label: strings.mainMenu.broadcast },
+    { label: strings.mainMenu.linked },
+    { label: isDark ? strings.mainMenu.toggleThemeLight : strings.mainMenu.toggleThemeDark, onSelect: toggleTheme },
+    { label: "Eliminar categoria", onSelect: onRequestDeleteCategory, disabled: !isCustomCategory },
+    { label: "__divider__" },
+    { label: strings.mainMenu.exportNotes, onSelect: handleExport },
+    { label: strings.mainMenu.importNotes, onSelect: () => importInputRef.current?.click() },
+    { label: strings.mainMenu.about, onSelect: () => setAboutOpen(true) },
+    { label: "__divider__" },
+    { label: strings.mainMenu.settings, onSelect: onOpenSettings },
+  ]
+
   return (
     <>
       <div className="bg-background text-foreground h-screen w-screen flex flex-col">
         {/* Header */}
-        <div className="flex justify-between items-center px-4 py-3">
-          <h1 className="text-xl font-medium">{appName || strings.appTitle}</h1>
-          <div className="flex items-center gap-4">
-            <Camera size={24} aria-hidden="true" />
-            <OptionsMenu
-              items={[
-                { label: strings.mainMenu.broadcast },
-                { label: strings.mainMenu.linked },
-                { label: isDark ? strings.mainMenu.toggleThemeLight : strings.mainMenu.toggleThemeDark, onSelect: toggleTheme },
-                { label: "Eliminar categoria", onSelect: onRequestDeleteCategory, disabled: !isCustomCategory },
-                { label: "__divider__" },
-                { label: strings.mainMenu.exportNotes, onSelect: handleExport },
-                { label: strings.mainMenu.importNotes, onSelect: () => importInputRef.current?.click() },
-                { label: strings.mainMenu.about, onSelect: () => setAboutOpen(true) },
-                { label: "__divider__" },
-                { label: strings.mainMenu.settings, onSelect: onOpenSettings },
-              ]}
-            />
-            <input
-              ref={importInputRef}
-              type="file"
-              accept="application/json,.json"
-              onChange={handleImportFile}
-              className="hidden"
-              aria-hidden="true"
-            />
+        {isIOS ? (
+          <div className="px-4 pt-3 pb-1">
+            <div className="flex justify-between items-center">
+              <OptionsMenu icon="horizontal" align="start" items={menuItems} />
+              <div className="flex items-center gap-4">
+                <Camera size={24} aria-hidden="true" />
+                <button
+                  type="button"
+                  onClick={onNewChat}
+                  aria-label="Crear nuevo chat"
+                  className="bg-primary/20 text-primary rounded-full p-1"
+                >
+                  <Plus size={22} />
+                </button>
+              </div>
+            </div>
+            <h1 className="text-3xl font-bold mt-1">{appName || strings.appTitle}</h1>
           </div>
-        </div>
+        ) : (
+          <div className="flex justify-between items-center px-4 py-3">
+            <h1 className="text-xl font-medium">{appName || strings.appTitle}</h1>
+            <div className="flex items-center gap-4">
+              <Camera size={24} aria-hidden="true" />
+              <OptionsMenu items={menuItems} />
+            </div>
+          </div>
+        )}
+        <input
+          ref={importInputRef}
+          type="file"
+          accept="application/json,.json"
+          onChange={handleImportFile}
+          className="hidden"
+          aria-hidden="true"
+        />
 
         <SearchBar value={search} onChange={setSearch} placeholder={strings.searchPlaceholder} />
 
@@ -192,9 +216,13 @@ export default function ChatListView({
           onAvatarClick={onAvatarClick}
         />
 
-        <BottomNavigation chatsCount={visibleChats.length} />
+        <BottomNavigation
+          chatsCount={visibleChats.length}
+          platform={platform}
+          onOpenSettings={onOpenSettings}
+        />
 
-        <FloatingActionButton onClick={onNewChat} />
+        {!isIOS && <FloatingActionButton onClick={onNewChat} />}
       </div>
 
       <ImageViewerModal

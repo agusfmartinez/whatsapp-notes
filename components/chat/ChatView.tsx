@@ -24,6 +24,7 @@ interface ChatController {
   onEditChat: () => void
   onAssignCategory: (category: string | null) => void
   categories: { id: string; label: string }[]
+  platform: "android" | "ios"
   onCreateCategory: () => void
   onSendMessage: (text: string, asMe: boolean) => void
   onSaveEdit: () => void
@@ -172,6 +173,7 @@ export default function ChatView({
         categories={chatController.categories}
         onCreateCategory={chatController.onCreateCategory}
         onOpenSearch={() => setSearchOpen(true)}
+        platform={chatController.platform}
       />
 
       {searchOpen && (

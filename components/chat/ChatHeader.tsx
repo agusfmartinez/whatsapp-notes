@@ -36,6 +36,7 @@ interface ChatHeaderProps {
   categories: { id: string; label: string }[]
   onCreateCategory: () => void
   onOpenSearch: () => void
+  platform: "android" | "ios"
 }
 
 export default function ChatHeader({
@@ -57,7 +58,8 @@ export default function ChatHeader({
   onAssignCategory,
   categories = [],
   onCreateCategory,
-  onOpenSearch
+  onOpenSearch,
+  platform
 }: ChatHeaderProps) {
   return (
     <div className="flex items-center gap-3 px-4 py-3 bg-background">
@@ -81,7 +83,7 @@ export default function ChatHeader({
         </AvatarFallback>
       </Avatar>
       
-      <div className="flex-1 min-w-0">
+      <div className={`flex-1 min-w-0 ${platform === "ios" ? "text-center" : ""}`}>
         <h2 className="font-medium text-foreground">{chat.name}</h2>
         {chat.showOnline ? (
           <p className="text-xs text-muted-foreground">{strings.chatMenu.online}</p>

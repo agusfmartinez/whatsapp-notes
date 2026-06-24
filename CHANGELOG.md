@@ -1,6 +1,7 @@
 # Changelog
 
 ## v1.2.0 - 2026-06-23
+- Estilo iOS/Android: switch en Configuración para cambiar el aspecto. iOS = título grande "Chats" con menú "..." y botón ＋ en el header, barra inferior de 5 tabs (incluye Ajustes) y título de chat centrado; Android = título a la izquierda, menú ⋮, FAB para nuevo chat y barra de 4 tabs. Default Android.
 - Bloqueo de chat con clave: por chat se puede poner/cambiar/quitar una clave (texto o PIN libre) desde editar chat. Al abrir un chat bloqueado pide la clave (modal); la lista muestra 🔒 y oculta el preview del último mensaje. La clave se guarda hasheada (SHA-256), nunca en texto plano. Aviso explícito: no hay recuperación de clave (todo local, sin backend) — si se olvida, se pierde el acceso al chat.
 - Fondo de chat: por chat se puede elegir un color de una paleta o subir una imagen (comprimida a máx 1080px webp). Se configura en editar chat y se aplica al área de mensajes. Opción "sin fondo" para volver al default.
 - Visto (tilde azul) configurable por chat: switch para activar/desactivar el visto azul en mensajes enviados, y demora en minutos (0 = inmediato; >0 simula que leen después de X tiempo). El enviado muestra tilde gris hasta que se cumple la demora. Persistido por chat; los vistos vencidos se resuelven al reabrir la app.

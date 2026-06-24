@@ -1,6 +1,6 @@
 "use client"
 
-import { MoreVertical } from "lucide-react"
+import { MoreVertical, MoreHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -20,18 +20,21 @@ type OptionsMenuProps = {
   items: MenuItem[]
   align?: "start" | "end" | "center"
   widthClass?: string
+  icon?: "vertical" | "horizontal"
 }
 
 export default function OptionsMenu({
   items,
   align = "end",
   widthClass = "w-40",
+  icon = "vertical",
 }: OptionsMenuProps) {
+  const Icon = icon === "horizontal" ? MoreHorizontal : MoreVertical
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="text-foreground">
-          <MoreVertical size={24} />
+          <Icon size={24} />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align={align} className={widthClass}>

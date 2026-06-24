@@ -72,6 +72,8 @@ export const strings = {
     appNameLabel: "Nombre de la app",
     appNamePlaceholder: "Ej: WhatsApp, Notas…",
     appNameHint: "Se muestra como título en la pantalla principal.",
+    platformLabel: "Estilo de interfaz",
+    platformHint: "Cambia el aspecto entre Android e iOS (header, barra inferior, botón de nuevo chat).",
     back: "Volver",
   },
   about: {

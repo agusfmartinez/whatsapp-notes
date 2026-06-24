@@ -21,6 +21,7 @@ type ChatController = {
   onEditChat: () => void
   onAssignCategory: (category: string | null) => void
   categories: { id: string; label: string }[]
+  platform: "android" | "ios"
   onCreateCategory: () => void
   onSendMessage: (text: string, asMe: boolean) => void
   onSaveEdit: () => void

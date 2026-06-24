@@ -24,7 +24,7 @@ export default function WhatsAppInterface() {
   const [uiState, dispatch] = useReducer(chatUiReducer, initialState)
   const [inputValue, setInputValue] = useState("")
   const { chats, createChat, deleteChat, clearChat, sendMessage, deleteMessage, editMessage, updateChat, categories, addCategory, deleteCategory, importData, loaded } = useChats()
-  const { settings, setAppName } = useSettings()
+  const { settings, setAppName, setPlatform } = useSettings()
   const restoredLastChat = useRef(false)
   const [restoring, setRestoring] = useState(true)
   const [unlockTarget, setUnlockTarget] = useState<Chat | null>(null)
@@ -328,6 +328,7 @@ export default function WhatsAppInterface() {
     onEditChat: handleEditChat,
     onAssignCategory: assignCategory,
     categories,
+    platform: settings.platform,
     onCreateCategory: openNewCategory,
     onSendMessage: (text: string, asMe: boolean) => {
       if (selectedChat) {
@@ -356,7 +357,8 @@ export default function WhatsAppInterface() {
     openNewCategory,
     saveEditedMessage,
     startSelectLongPress,
-    cancelLongPress
+    cancelLongPress,
+    settings.platform
   ])
 
   // Splash mientras cargan los chats y se decide si restaurar el último chat
@@ -464,6 +466,8 @@ export default function WhatsAppInterface() {
       <SettingsScreen
         appName={settings.appName}
         onAppNameChange={setAppName}
+        platform={settings.platform}
+        onPlatformChange={setPlatform}
         onBack={() => dispatch({ type: "NAVIGATE_BACK_TO_CHATS" })}
       />
     )
@@ -527,6 +531,7 @@ export default function WhatsAppInterface() {
         onImportData={importData}
         appName={settings.appName}
         onOpenSettings={() => dispatch({ type: "NAVIGATE_TO_SETTINGS" })}
+        platform={settings.platform}
       />
     </>
   )

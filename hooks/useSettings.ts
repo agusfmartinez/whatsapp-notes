@@ -3,12 +3,16 @@
 import { useState, useEffect } from "react"
 import { strings } from "@/strings/es"
 
+export type Platform = "android" | "ios"
+
 export type Settings = {
   appName: string
+  platform: Platform
 }
 
 const DEFAULT_SETTINGS: Settings = {
   appName: strings.appTitle,
+  platform: "android",
 }
 
 export function useSettings() {
@@ -34,5 +38,9 @@ export function useSettings() {
     setSettings(prev => ({ ...prev, appName }))
   }
 
-  return { settings, setAppName }
+  const setPlatform = (platform: Platform) => {
+    setSettings(prev => ({ ...prev, platform }))
+  }
+
+  return { settings, setAppName, setPlatform }
 }

@@ -4,14 +4,17 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ArrowLeft } from "lucide-react"
 import { strings } from "@/strings/es"
+import type { Platform } from "@/hooks/useSettings"
 
 type SettingsScreenProps = {
   appName: string
   onAppNameChange: (name: string) => void
+  platform: Platform
+  onPlatformChange: (platform: Platform) => void
   onBack: () => void
 }
 
-export default function SettingsScreen({ appName, onAppNameChange, onBack }: SettingsScreenProps) {
+export default function SettingsScreen({ appName, onAppNameChange, platform, onPlatformChange, onBack }: SettingsScreenProps) {
   return (
     <div className="bg-background text-foreground h-[100dvh] w-screen flex flex-col">
       {/* Header */}
@@ -38,6 +41,23 @@ export default function SettingsScreen({ appName, onAppNameChange, onBack }: Set
           className="bg-muted border-border text-foreground"
         />
         <p className="text-xs text-muted-foreground">{strings.settings.appNameHint}</p>
+      </div>
+
+      <div className="px-4 mt-6 space-y-2">
+        <label className="block text-sm text-muted-foreground">{strings.settings.platformLabel}</label>
+        <div className="inline-flex rounded-lg border border-border overflow-hidden">
+          {(["android", "ios"] as Platform[]).map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => onPlatformChange(p)}
+              className={`px-4 py-2 text-sm capitalize ${platform === p ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"}`}
+            >
+              {p === "ios" ? "iOS" : "Android"}
+            </button>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground">{strings.settings.platformHint}</p>
       </div>
     </div>
   )
