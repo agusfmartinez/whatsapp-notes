@@ -17,6 +17,8 @@ import NewCategoryModal from "@/components/modals/NewCategoryModal"
 import ConfirmDeleteCategoryModal from "@/components/modals/ConfirmDeleteCategoryModal"
 import ArchivedChatsView from "@/components/views/ArchivedChatsView"
 import SettingsScreen from "@/components/views/SettingsScreen"
+import UnlockChatModal from "@/components/modals/UnlockChatModal"
+import { sha256Hex } from "@/lib/crypto"
 
 export default function WhatsAppInterface() {
   const [uiState, dispatch] = useReducer(chatUiReducer, initialState)
@@ -25,6 +27,7 @@ export default function WhatsAppInterface() {
   const { settings, setAppName } = useSettings()
   const restoredLastChat = useRef(false)
   const [restoring, setRestoring] = useState(true)
+  const [unlockTarget, setUnlockTarget] = useState<Chat | null>(null)
   const [newCategoryOpen, setNewCategoryOpen] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState("")
   const [deleteCategoryOpen, setDeleteCategoryOpen] = useState(false)
@@ -109,9 +112,25 @@ export default function WhatsAppInterface() {
   }
 
   const handleChatClick = useCallback((chat: Chat) => {
+    if (chat.lockHash) {
+      setUnlockTarget(chat)
+      return
+    }
     dispatch({ type: "NAVIGATE_TO_CHAT", payload: chat.id })
     setInputValue("")
   }, [])
+
+  const verifyUnlock = useCallback(async (clave: string) => {
+    if (!unlockTarget) return false
+    const hash = await sha256Hex(clave)
+    if (hash === unlockTarget.lockHash) {
+      dispatch({ type: "NAVIGATE_TO_CHAT", payload: unlockTarget.id })
+      setInputValue("")
+      setUnlockTarget(null)
+      return true
+    }
+    return false
+  }, [unlockTarget])
 
   const handleBackToChats = useCallback(() => {
     localStorage.removeItem("lastChatId")
@@ -231,11 +250,11 @@ export default function WhatsAppInterface() {
     setActiveTab("todos")
   }, [deleteCategoryId, deleteCategory])
 
-  const handleSaveEditChat = (e: React.FormEvent) => {
+  const handleSaveEditChat = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedChat || !uiState.editChat.name.trim()) return
-    
-    const updates: Partial<Pick<Chat, 'name' | 'avatar' | 'description' | 'readReceipts' | 'readDelayMinutes' | 'background'>> = {
+
+    const updates: Partial<Pick<Chat, 'name' | 'avatar' | 'description' | 'readReceipts' | 'readDelayMinutes' | 'background' | 'lockHash'>> = {
       name: uiState.editChat.name.trim(),
       description: uiState.editChat.description.trim() || undefined,
       readReceipts: uiState.editChat.readReceipts,
@@ -246,7 +265,14 @@ export default function WhatsAppInterface() {
     if (uiState.editChat.avatarPreview) {
       updates.avatar = uiState.editChat.avatarPreview
     }
-    
+
+    // Bloqueo con clave
+    if (uiState.editChat.removeLock) {
+      updates.lockHash = undefined
+    } else if (uiState.editChat.lockClave.trim()) {
+      updates.lockHash = await sha256Hex(uiState.editChat.lockClave)
+    }
+
     updateChat(selectedChat.id, updates)
     dispatch({ type: "NAVIGATE_TO_CHAT", payload: selectedChat.id })
     dispatch({ type: "RESET_EDIT_CHAT_FORM" })
@@ -382,6 +408,11 @@ export default function WhatsAppInterface() {
         setReadDelayMinutes={(n) => dispatch({ type: "SET_EDIT_CHAT_READ_DELAY", payload: n })}
         background={uiState.editChat.background}
         setBackground={(b) => dispatch({ type: "SET_EDIT_CHAT_BACKGROUND", payload: b })}
+        isLocked={!!selectedChat.lockHash}
+        lockClave={uiState.editChat.lockClave}
+        setLockClave={(c) => dispatch({ type: "SET_EDIT_CHAT_LOCK_CLAVE", payload: c })}
+        removeLock={uiState.editChat.removeLock}
+        setRemoveLock={(v) => dispatch({ type: "SET_EDIT_CHAT_REMOVE_LOCK", payload: v })}
         avatarPreview={uiState.editChat.avatarPreview}
         onBack={() => dispatch({ type: "NAVIGATE_TO_CHAT", payload: selectedChat.id })}
         onSubmit={handleSaveEditChat}
@@ -440,18 +471,32 @@ export default function WhatsAppInterface() {
 
   if (uiState.view === "archived") {
     return (
-      <ArchivedChatsView
-        chats={chats.filter(chat => chat.isArchived)}
-        onBack={() => dispatch({ type: "NAVIGATE_BACK_TO_CHATS" })}
-        onChatClick={handleChatClick}
-        onAvatarClick={(avatarSrc) => dispatch({ type: "OPEN_IMAGE_VIEWER", payload: avatarSrc })}
-      />
+      <>
+        <ArchivedChatsView
+          chats={chats.filter(chat => chat.isArchived)}
+          onBack={() => dispatch({ type: "NAVIGATE_BACK_TO_CHATS" })}
+          onChatClick={handleChatClick}
+          onAvatarClick={(avatarSrc) => dispatch({ type: "OPEN_IMAGE_VIEWER", payload: avatarSrc })}
+        />
+        <UnlockChatModal
+          isOpen={!!unlockTarget}
+          chatName={unlockTarget?.name}
+          onCancel={() => setUnlockTarget(null)}
+          onSubmit={verifyUnlock}
+        />
+      </>
     )
   }
 
   return (
     <>
       <ServiceWorkerClient />
+      <UnlockChatModal
+        isOpen={!!unlockTarget}
+        chatName={unlockTarget?.name}
+        onCancel={() => setUnlockTarget(null)}
+        onSubmit={verifyUnlock}
+      />
       <NewCategoryModal
         isOpen={newCategoryOpen}
         name={newCategoryName}

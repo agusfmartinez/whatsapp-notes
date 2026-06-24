@@ -175,7 +175,7 @@ export function useChats() {
     )
   }
 
-  const updateChat = (chatId: number, updates: Partial<Pick<Chat, "name" | "avatar" | "description" | "category" | "isArchived" | "isPinned" | "showOnline" | "readReceipts" | "readDelayMinutes" | "background">>) => {
+  const updateChat = (chatId: number, updates: Partial<Pick<Chat, "name" | "avatar" | "description" | "category" | "isArchived" | "isPinned" | "showOnline" | "readReceipts" | "readDelayMinutes" | "background" | "lockHash">>) => {
     setChats(prev =>
       prev.map(chat =>
         chat.id === chatId

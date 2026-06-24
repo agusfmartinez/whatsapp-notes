@@ -23,6 +23,8 @@ export interface ChatUIState {
     readReceipts: boolean
     readDelayMinutes: number
     background: string | null
+    lockClave: string
+    removeLock: boolean
     avatarPreview: string | null
   }
   
@@ -75,6 +77,8 @@ export type ChatUIAction =
   | { type: "SET_EDIT_CHAT_READ_RECEIPTS"; payload: boolean }
   | { type: "SET_EDIT_CHAT_READ_DELAY"; payload: number }
   | { type: "SET_EDIT_CHAT_BACKGROUND"; payload: string | null }
+  | { type: "SET_EDIT_CHAT_LOCK_CLAVE"; payload: string }
+  | { type: "SET_EDIT_CHAT_REMOVE_LOCK"; payload: boolean }
   | { type: "RESET_NEW_CHAT_FORM" }
   | { type: "RESET_EDIT_CHAT_FORM" }
   
@@ -108,6 +112,8 @@ const initialState: ChatUIState = {
     readReceipts: true,
     readDelayMinutes: 0,
     background: null,
+    lockClave: "",
+    removeLock: false,
     avatarPreview: null
   },
   imageViewer: {
@@ -190,7 +196,7 @@ export function chatUiReducer(state: ChatUIState, action: ChatUIAction): ChatUIS
       return { 
         ...state, 
         view: "editChat",
-        editChat: { name: "", description: "", readReceipts: true, readDelayMinutes: 0, background: null, avatarPreview: null }
+        editChat: { name: "", description: "", readReceipts: true, readDelayMinutes: 0, background: null, lockClave: "", removeLock: false, avatarPreview: null }
       }
     
     // Composición y mensajes
@@ -250,6 +256,18 @@ export function chatUiReducer(state: ChatUIState, action: ChatUIAction): ChatUIS
         ...state,
         editChat: { ...state.editChat, background: action.payload }
       }
+
+    case "SET_EDIT_CHAT_LOCK_CLAVE":
+      return {
+        ...state,
+        editChat: { ...state.editChat, lockClave: action.payload }
+      }
+
+    case "SET_EDIT_CHAT_REMOVE_LOCK":
+      return {
+        ...state,
+        editChat: { ...state.editChat, removeLock: action.payload }
+      }
     
     case "RESET_NEW_CHAT_FORM":
       return { 
@@ -260,7 +278,7 @@ export function chatUiReducer(state: ChatUIState, action: ChatUIAction): ChatUIS
     case "RESET_EDIT_CHAT_FORM":
       return { 
         ...state, 
-        editChat: { name: "", description: "", readReceipts: true, readDelayMinutes: 0, background: null, avatarPreview: null }
+        editChat: { name: "", description: "", readReceipts: true, readDelayMinutes: 0, background: null, lockClave: "", removeLock: false, avatarPreview: null }
       }
     
     // Cropper

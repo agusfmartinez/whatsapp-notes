@@ -22,6 +22,9 @@ type EditChatScreenProps = {
   readReceipts: boolean
   readDelayMinutes: number
   background: string | null
+  isLocked: boolean
+  lockClave: string
+  removeLock: boolean
   avatarPreview: string | null
   onBack: () => void
   onSubmit: (e: React.FormEvent) => void
@@ -31,6 +34,8 @@ type EditChatScreenProps = {
   setReadReceipts: (v: boolean) => void
   setReadDelayMinutes: (n: number) => void
   setBackground: (b: string | null) => void
+  setLockClave: (c: string) => void
+  setRemoveLock: (v: boolean) => void
   cropper: CropperState
   onCloseCropper: () => void
   onCropXChange: (x: number) => void
@@ -46,6 +51,9 @@ export default function EditChatScreen({
   readReceipts,
   readDelayMinutes,
   background,
+  isLocked,
+  lockClave,
+  removeLock,
   avatarPreview,
   onBack,
   onSubmit,
@@ -55,6 +63,8 @@ export default function EditChatScreen({
   setReadReceipts,
   setReadDelayMinutes,
   setBackground,
+  setLockClave,
+  setRemoveLock,
   cropper,
   onCloseCropper,
   onCropXChange,
@@ -76,6 +86,11 @@ export default function EditChatScreen({
         setReadDelayMinutes={setReadDelayMinutes}
         background={background}
         setBackground={setBackground}
+        isLocked={isLocked}
+        lockClave={lockClave}
+        setLockClave={setLockClave}
+        removeLock={removeLock}
+        setRemoveLock={setRemoveLock}
         avatarPreview={avatarPreview}
         onBack={onBack}
         onSubmit={onSubmit}

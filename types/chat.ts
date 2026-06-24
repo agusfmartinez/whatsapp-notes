@@ -26,6 +26,7 @@ export type Message = {
     readReceipts?: boolean // mostrar visto azul en enviados (default true)
     readDelayMinutes?: number // demora del visto azul, en minutos (default 0)
     background?: string // color (hex/css) o imagen (dataURL) de fondo del chat
+    lockHash?: string // SHA-256 de la clave; si está presente, el chat está bloqueado
     hasSticker?: boolean
     isOfficial?: boolean
     isGroup?: boolean

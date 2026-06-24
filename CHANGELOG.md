@@ -1,6 +1,7 @@
 # Changelog
 
 ## v1.2.0 - 2026-06-23
+- Bloqueo de chat con clave: por chat se puede poner/cambiar/quitar una clave (texto o PIN libre) desde editar chat. Al abrir un chat bloqueado pide la clave (modal); la lista muestra 🔒 y oculta el preview del último mensaje. La clave se guarda hasheada (SHA-256), nunca en texto plano. Aviso explícito: no hay recuperación de clave (todo local, sin backend) — si se olvida, se pierde el acceso al chat.
 - Fondo de chat: por chat se puede elegir un color de una paleta o subir una imagen (comprimida a máx 1080px webp). Se configura en editar chat y se aplica al área de mensajes. Opción "sin fondo" para volver al default.
 - Visto (tilde azul) configurable por chat: switch para activar/desactivar el visto azul en mensajes enviados, y demora en minutos (0 = inmediato; >0 simula que leen después de X tiempo). El enviado muestra tilde gris hasta que se cumple la demora. Persistido por chat; los vistos vencidos se resuelven al reabrir la app.
 - Configuración: el ítem "Configuración" del menú principal ahora abre una pantalla de ajustes. Primer ajuste: nombre de la app editable (reemplaza el "WhatsApp" hardcodeado del título), persistido en localStorage vía nuevo hook useSettings.

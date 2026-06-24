@@ -1,8 +1,9 @@
 "use client"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { CheckCheck } from "lucide-react"
+import { CheckCheck, Lock } from "lucide-react"
 import { Chat } from "@/types/chat"
+import { strings } from "@/strings/es"
 
 type ChatListItemProps = {
   chat: Chat
@@ -13,6 +14,7 @@ type ChatListItemProps = {
 export default function ChatListItem({ chat, onClick, onAvatarClick }: ChatListItemProps) {
   const lastMessage = chat.messages[chat.messages.length - 1]
   const avatarSrc = chat.avatar || "/placeholder.svg"
+  const isLocked = !!chat.lockHash
 
   return (
     <div
@@ -46,16 +48,25 @@ export default function ChatListItem({ chat, onClick, onAvatarClick }: ChatListI
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {lastMessage && lastMessage.isSent && (
-            lastMessage.isRead
-              ? <div className="text-blue-400 text-xs"><CheckCheck size={16} /></div>
-              : <div className="text-gray-400 text-xs"><CheckCheck size={16} /></div>
+          {isLocked ? (
+            <p className="text-sm text-gray-400 truncate flex items-center gap-1">
+              <Lock size={14} aria-hidden="true" />
+              {strings.lockedPreview}
+            </p>
+          ) : (
+            <>
+              {lastMessage && lastMessage.isSent && (
+                lastMessage.isRead
+                  ? <div className="text-blue-400 text-xs"><CheckCheck size={16} /></div>
+                  : <div className="text-gray-400 text-xs"><CheckCheck size={16} /></div>
+              )}
+              {chat.hasSticker && <div className="text-gray-400 text-xs">🎭</div>}
+              {chat.isOfficial && <div className="text-gray-400 text-xs">📢</div>}
+              <p className="text-sm text-gray-400 truncate">
+                {lastMessage ? lastMessage.text : "Sin mensajes"}
+              </p>
+            </>
           )}
-          {chat.hasSticker && <div className="text-gray-400 text-xs">🎭</div>}
-          {chat.isOfficial && <div className="text-gray-400 text-xs">📢</div>}
-          <p className="text-sm text-gray-400 truncate">
-            {lastMessage ? lastMessage.text : "Sin mensajes"}
-          </p>
         </div>
       </div>
     </div>

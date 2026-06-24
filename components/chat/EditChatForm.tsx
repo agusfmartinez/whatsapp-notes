@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input"
 import { ArrowLeft, Check } from "lucide-react"
 import { Chat } from "@/types/chat"
 import { fileToDataURL, compressImageFull } from "@/lib/images"
+import { strings } from "@/strings/es"
 import Image from "next/image"
 
 const BG_COLORS = ["#0b141a", "#1f2c34", "#0a3d2e", "#3b2f0a", "#2a1f3d", "#3d0a1f"]
@@ -21,6 +22,11 @@ interface EditChatFormProps {
   setReadDelayMinutes: (n: number) => void
   background: string | null
   setBackground: (b: string | null) => void
+  isLocked: boolean
+  lockClave: string
+  setLockClave: (c: string) => void
+  removeLock: boolean
+  setRemoveLock: (v: boolean) => void
   avatarPreview: string | null
   onBack: () => void
   onSubmit: (e: React.FormEvent) => void
@@ -39,6 +45,11 @@ export default function EditChatForm({
   setReadDelayMinutes,
   background,
   setBackground,
+  isLocked,
+  lockClave,
+  setLockClave,
+  removeLock,
+  setRemoveLock,
   avatarPreview,
   onBack,
   onSubmit,
@@ -188,6 +199,41 @@ export default function EditChatForm({
               Quitar imagen
             </button>
           )}
+        </div>
+
+        <div className="space-y-2 pt-2 border-t border-border">
+          <label className="block text-sm text-muted-foreground">{strings.lock.sectionTitle}</label>
+
+          {isLocked && !removeLock && (
+            <p className="text-sm text-foreground">{strings.lock.protected}</p>
+          )}
+
+          {isLocked && (
+            <label className="flex items-center gap-2 cursor-pointer text-sm text-red-400">
+              <input
+                type="checkbox"
+                checked={removeLock}
+                onChange={(e) => setRemoveLock(e.target.checked)}
+                className="h-4 w-4 accent-red-500"
+              />
+              {strings.lock.remove}
+            </label>
+          )}
+
+          {!removeLock && (
+            <Input
+              type="password"
+              value={lockClave}
+              onChange={(e) => setLockClave(e.target.value)}
+              placeholder={strings.lock.placeholder}
+              aria-label={isLocked ? strings.lock.changeLabel : strings.lock.setLabel}
+              className="bg-muted border-border text-foreground"
+            />
+          )}
+          <p className="text-xs text-muted-foreground">
+            {removeLock ? strings.lock.remove : (isLocked ? strings.lock.changeLabel : strings.lock.setLabel)}
+          </p>
+          <p className="text-xs text-amber-400/90">{strings.lock.warning}</p>
         </div>
 
         <div className="flex justify-end">
