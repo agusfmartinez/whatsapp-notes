@@ -45,5 +45,18 @@ export const strings = {
     settings: "Configuración",
     toggleThemeLight: "Cambiar a modo claro",
     toggleThemeDark: "Cambiar a modo oscuro",
+    exportNotes: "Exportar notas",
+    importNotes: "Importar notas",
+    about: "Acerca de",
   },
+  about: {
+    title: "WhatsApp Notes",
+    description: "Bloc de notas con interfaz estilo WhatsApp. Cada chat es un anotador. Todo se guarda localmente en tu dispositivo.",
+    versionLabel: "Versión",
+    close: "Cerrar",
+  },
+  importConfirm: "Importar reemplazará todos tus chats y categorías actuales. ¿Continuar?",
+  importError: "El archivo no es un export válido de WhatsApp Notes.",
 }
+
+export const APP_VERSION = "1.2.0"

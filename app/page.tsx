@@ -19,7 +19,7 @@ import ArchivedChatsView from "@/components/views/ArchivedChatsView"
 export default function WhatsAppInterface() {
   const [uiState, dispatch] = useReducer(chatUiReducer, initialState)
   const [inputValue, setInputValue] = useState("")
-  const { chats, createChat, deleteChat, clearChat, sendMessage, deleteMessage, editMessage, updateChat, categories, addCategory, deleteCategory, loaded } = useChats()
+  const { chats, createChat, deleteChat, clearChat, sendMessage, deleteMessage, editMessage, updateChat, categories, addCategory, deleteCategory, importData, loaded } = useChats()
   const restoredLastChat = useRef(false)
   const [restoring, setRestoring] = useState(true)
   const [newCategoryOpen, setNewCategoryOpen] = useState(false)
@@ -454,6 +454,7 @@ export default function WhatsAppInterface() {
         imageViewer={uiState.imageViewer}
         onCloseImage={() => dispatch({ type: "CLOSE_IMAGE_VIEWER" })}
         onRequestDeleteCategory={requestDeleteCategory}
+        onImportData={importData}
       />
     </>
   )

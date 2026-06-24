@@ -7,10 +7,11 @@ import FilterTabs from "@/components/common/FilterTabs"
 import BottomNavigation from "@/components/common/BottomNavigation"
 import FloatingActionButton from "@/components/common/FloatingActionButton"
 import ImageViewerModal from "@/components/modals/ImageViewerModal"
+import AboutModal from "@/components/modals/AboutModal"
 import OptionsMenu from "@/components/common/OptionsMenu"
 import { Chat } from "@/types/chat"
 import { strings } from "@/strings/es"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 type ChatListViewProps = {
   chats: Chat[]
@@ -24,6 +25,7 @@ type ChatListViewProps = {
   imageViewer: { isOpen: boolean; src: string | null }
   onCloseImage: () => void
   onRequestDeleteCategory: () => void
+  onImportData: (data: { chats?: unknown; categories?: unknown }) => void
 }
 
 export default function ChatListView({
@@ -38,10 +40,47 @@ export default function ChatListView({
   imageViewer,
   onCloseImage,
   onRequestDeleteCategory,
+  onImportData,
 }: ChatListViewProps) {
   const [isDark, setIsDark] = useState(true)
   const [search, setSearch] = useState("")
+  const [aboutOpen, setAboutOpen] = useState(false)
+  const importInputRef = useRef<HTMLInputElement>(null)
   const safeChats = Array.isArray(chats) ? chats : []
+
+  const handleExport = () => {
+    const payload = {
+      app: "whatsapp-notes",
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      chats: safeChats,
+      categories: Array.isArray(categories) ? categories : [],
+    }
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `whatsapp-notes-${new Date().toISOString().slice(0, 10)}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = "" // permite reimportar el mismo archivo
+    if (!file) return
+    try {
+      const data = JSON.parse(await file.text())
+      if (!data || !Array.isArray(data.chats)) {
+        alert(strings.importError)
+        return
+      }
+      if (!confirm(strings.importConfirm)) return
+      onImportData(data)
+    } catch {
+      alert(strings.importError)
+    }
+  }
 
   useEffect(() => {
     const root = document.documentElement
@@ -103,8 +142,20 @@ export default function ChatListView({
                 { label: isDark ? strings.mainMenu.toggleThemeLight : strings.mainMenu.toggleThemeDark, onSelect: toggleTheme },
                 { label: "Eliminar categoria", onSelect: onRequestDeleteCategory, disabled: !isCustomCategory },
                 { label: "__divider__" },
+                { label: strings.mainMenu.exportNotes, onSelect: handleExport },
+                { label: strings.mainMenu.importNotes, onSelect: () => importInputRef.current?.click() },
+                { label: strings.mainMenu.about, onSelect: () => setAboutOpen(true) },
+                { label: "__divider__" },
                 { label: strings.mainMenu.settings },
               ]}
+            />
+            <input
+              ref={importInputRef}
+              type="file"
+              accept="application/json,.json"
+              onChange={handleImportFile}
+              className="hidden"
+              aria-hidden="true"
             />
           </div>
         </div>
@@ -147,6 +198,8 @@ export default function ChatListView({
         src={imageViewer.src}
         onClose={onCloseImage}
       />
+
+      <AboutModal isOpen={aboutOpen} onClose={() => setAboutOpen(false)} />
     </>
   )
 }

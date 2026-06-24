@@ -143,6 +143,12 @@ export function useChats() {
     setChats(prev => prev.map(c => (c.category === categoryId ? { ...c, category: undefined } : c)))
   }
 
+  // Reemplaza chats y categorías desde un export importado.
+  const importData = (data: { chats?: unknown; categories?: unknown }) => {
+    if (Array.isArray(data?.chats)) setChats(data.chats as Chat[])
+    if (Array.isArray(data?.categories)) setCategories(data.categories as Category[])
+  }
+
   return {
     chats,
     setChats,
@@ -156,6 +162,7 @@ export function useChats() {
     editMessage,
     updateChat,
     addCategory,
-    deleteCategory
+    deleteCategory,
+    importData
   }
 }
