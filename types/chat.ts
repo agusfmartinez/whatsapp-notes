@@ -5,6 +5,7 @@ export type Message = {
     timestamp: number
     isSent: boolean
     isRead?: boolean
+    readAt?: number // timestamp objetivo para marcar el visto azul (delay)
   }
   
   export type Category = {
@@ -22,6 +23,8 @@ export type Message = {
     isArchived?: boolean
     isPinned?: boolean
     showOnline?: boolean
+    readReceipts?: boolean // mostrar visto azul en enviados (default true)
+    readDelayMinutes?: number // demora del visto azul, en minutos (default 0)
     hasSticker?: boolean
     isOfficial?: boolean
     isGroup?: boolean

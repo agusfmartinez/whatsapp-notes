@@ -20,6 +20,8 @@ export interface ChatUIState {
   editChat: {
     name: string
     description: string
+    readReceipts: boolean
+    readDelayMinutes: number
     avatarPreview: string | null
   }
   
@@ -69,6 +71,8 @@ export type ChatUIAction =
   | { type: "SET_NEW_CHAT_NAME"; payload: string }
   | { type: "SET_EDIT_CHAT_NAME"; payload: string }
   | { type: "SET_EDIT_CHAT_DESCRIPTION"; payload: string }
+  | { type: "SET_EDIT_CHAT_READ_RECEIPTS"; payload: boolean }
+  | { type: "SET_EDIT_CHAT_READ_DELAY"; payload: number }
   | { type: "RESET_NEW_CHAT_FORM" }
   | { type: "RESET_EDIT_CHAT_FORM" }
   
@@ -99,6 +103,8 @@ const initialState: ChatUIState = {
   editChat: {
     name: "",
     description: "",
+    readReceipts: true,
+    readDelayMinutes: 0,
     avatarPreview: null
   },
   imageViewer: {
@@ -181,7 +187,7 @@ export function chatUiReducer(state: ChatUIState, action: ChatUIAction): ChatUIS
       return { 
         ...state, 
         view: "editChat",
-        editChat: { name: "", description: "", avatarPreview: null }
+        editChat: { name: "", description: "", readReceipts: true, readDelayMinutes: 0, avatarPreview: null }
       }
     
     // Composición y mensajes
@@ -223,6 +229,18 @@ export function chatUiReducer(state: ChatUIState, action: ChatUIAction): ChatUIS
         ...state,
         editChat: { ...state.editChat, description: action.payload }
       }
+
+    case "SET_EDIT_CHAT_READ_RECEIPTS":
+      return {
+        ...state,
+        editChat: { ...state.editChat, readReceipts: action.payload }
+      }
+
+    case "SET_EDIT_CHAT_READ_DELAY":
+      return {
+        ...state,
+        editChat: { ...state.editChat, readDelayMinutes: action.payload }
+      }
     
     case "RESET_NEW_CHAT_FORM":
       return { 
@@ -233,7 +251,7 @@ export function chatUiReducer(state: ChatUIState, action: ChatUIAction): ChatUIS
     case "RESET_EDIT_CHAT_FORM":
       return { 
         ...state, 
-        editChat: { name: "", description: "", avatarPreview: null }
+        editChat: { name: "", description: "", readReceipts: true, readDelayMinutes: 0, avatarPreview: null }
       }
     
     // Cropper

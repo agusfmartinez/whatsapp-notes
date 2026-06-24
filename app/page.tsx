@@ -170,6 +170,8 @@ export default function WhatsAppInterface() {
     dispatch({ type: "NAVIGATE_TO_EDIT_CHAT" })
     dispatch({ type: "SET_EDIT_CHAT_NAME", payload: selectedChat.name })
     dispatch({ type: "SET_EDIT_CHAT_DESCRIPTION", payload: selectedChat.description ?? "" })
+    dispatch({ type: "SET_EDIT_CHAT_READ_RECEIPTS", payload: selectedChat.readReceipts !== false })
+    dispatch({ type: "SET_EDIT_CHAT_READ_DELAY", payload: selectedChat.readDelayMinutes ?? 0 })
   }, [selectedChat])
 
   const assignCategory = useCallback((category: string | null) => {
@@ -232,9 +234,11 @@ export default function WhatsAppInterface() {
     e.preventDefault()
     if (!selectedChat || !uiState.editChat.name.trim()) return
     
-    const updates: Partial<Pick<Chat, 'name' | 'avatar' | 'description'>> = {
+    const updates: Partial<Pick<Chat, 'name' | 'avatar' | 'description' | 'readReceipts' | 'readDelayMinutes'>> = {
       name: uiState.editChat.name.trim(),
-      description: uiState.editChat.description.trim() || undefined
+      description: uiState.editChat.description.trim() || undefined,
+      readReceipts: uiState.editChat.readReceipts,
+      readDelayMinutes: Math.max(0, uiState.editChat.readDelayMinutes || 0)
     }
 
     if (uiState.editChat.avatarPreview) {
@@ -370,6 +374,10 @@ export default function WhatsAppInterface() {
         setChatName={(name) => dispatch({ type: "SET_EDIT_CHAT_NAME", payload: name })}
         chatDescription={uiState.editChat.description}
         setChatDescription={(d) => dispatch({ type: "SET_EDIT_CHAT_DESCRIPTION", payload: d })}
+        readReceipts={uiState.editChat.readReceipts}
+        setReadReceipts={(v) => dispatch({ type: "SET_EDIT_CHAT_READ_RECEIPTS", payload: v })}
+        readDelayMinutes={uiState.editChat.readDelayMinutes}
+        setReadDelayMinutes={(n) => dispatch({ type: "SET_EDIT_CHAT_READ_DELAY", payload: n })}
         avatarPreview={uiState.editChat.avatarPreview}
         onBack={() => dispatch({ type: "NAVIGATE_TO_CHAT", payload: selectedChat.id })}
         onSubmit={handleSaveEditChat}

@@ -12,6 +12,10 @@ interface EditChatFormProps {
   setChatName: (name: string) => void
   chatDescription: string
   setChatDescription: (description: string) => void
+  readReceipts: boolean
+  setReadReceipts: (v: boolean) => void
+  readDelayMinutes: number
+  setReadDelayMinutes: (n: number) => void
   avatarPreview: string | null
   onBack: () => void
   onSubmit: (e: React.FormEvent) => void
@@ -24,6 +28,10 @@ export default function EditChatForm({
   setChatName,
   chatDescription,
   setChatDescription,
+  readReceipts,
+  setReadReceipts,
+  readDelayMinutes,
+  setReadDelayMinutes,
   avatarPreview,
   onBack,
   onSubmit,
@@ -100,6 +108,34 @@ export default function EditChatForm({
             rows={3}
             className="w-full rounded-md bg-muted border border-border text-foreground px-3 py-2 text-sm outline-none resize-none placeholder:text-muted-foreground"
           />
+        </div>
+
+        <div className="space-y-3 pt-2 border-t border-border">
+          <label className="flex items-center justify-between gap-3 cursor-pointer">
+            <span className="text-sm text-foreground">Confirmaciones de lectura (visto azul)</span>
+            <input
+              type="checkbox"
+              checked={readReceipts}
+              onChange={(e) => setReadReceipts(e.target.checked)}
+              className="h-4 w-4 accent-[#21c063]"
+            />
+          </label>
+
+          {readReceipts && (
+            <div>
+              <label className="block text-sm text-muted-foreground mb-1">Demora del visto (minutos)</label>
+              <Input
+                type="number"
+                min={0}
+                value={readDelayMinutes}
+                onChange={(e) => setReadDelayMinutes(Math.max(0, Number(e.target.value) || 0))}
+                className="bg-muted border-border text-foreground w-32"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                0 = visto inmediato. Mayor a 0 simula que leen después de ese tiempo.
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="flex justify-end">

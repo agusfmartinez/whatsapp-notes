@@ -61,8 +61,8 @@ export default function MessageBubble({
         <p className="text-sm leading-relaxed">{message.text}</p>
         <div className="flex items-center justify-end gap-1 mt-1">
           <span className="text-xs text-gray-300">{message.time}</span>
-          {sent && message.isRead && (
-            <div className="text-blue-400 text-xs">
+          {sent && (
+            <div className={`text-xs ${message.isRead ? "text-blue-400" : "text-gray-300"}`}>
               <CheckCheck size={16} />
             </div>
           )}

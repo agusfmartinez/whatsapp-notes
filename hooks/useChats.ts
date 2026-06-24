@@ -41,6 +41,48 @@ export function useChats() {
     localStorage.setItem("categories", JSON.stringify(categories))
   }, [categories])
 
+  // Visto demorado: marca como leídos los mensajes cuyo readAt ya venció,
+  // y programa un timer para los que vencen en el futuro.
+  useEffect(() => {
+    const now = Date.now()
+    let hasDue = false
+    const next = chats.map(chat => {
+      let touched = false
+      const msgs = chat.messages.map(m => {
+        if (m.isSent && m.isRead === false && m.readAt && m.readAt <= now) {
+          touched = true
+          return { ...m, isRead: true, readAt: undefined }
+        }
+        return m
+      })
+      if (touched) hasDue = true
+      return touched ? { ...chat, messages: msgs } : chat
+    })
+
+    if (hasDue) {
+      setChats(next)
+      return
+    }
+
+    const timers: ReturnType<typeof setTimeout>[] = []
+    chats.forEach(chat => {
+      chat.messages.forEach(m => {
+        if (m.isSent && m.isRead === false && m.readAt && m.readAt > now) {
+          const id = m.id
+          const chatId = chat.id
+          timers.push(setTimeout(() => {
+            setChats(prev => prev.map(c =>
+              c.id === chatId
+                ? { ...c, messages: c.messages.map(mm => mm.id === id ? { ...mm, isRead: true, readAt: undefined } : mm) }
+                : c
+            ))
+          }, m.readAt - now))
+        }
+      })
+    })
+    return () => timers.forEach(clearTimeout)
+  }, [chats])
+
   const createChat = (name: string, avatar?: string) => {
     const newChat: Chat = {
       id: Date.now(),
@@ -66,25 +108,45 @@ export function useChats() {
 
   const sendMessage = (chatId: number, text: string, asMe: boolean) => {
     const now = new Date()
+    const nowMs = now.getTime()
     setChats(prev =>
-      prev.map(chat =>
-        chat.id === chatId
-          ? {
-            ...chat,
-            messages: [
-              ...chat.messages,
-              {
-                id: Date.now(),
-                text,
-                time: formatTime(now),
-                timestamp: now.getTime(),
-                isSent: asMe,
-                isRead: asMe ? true : undefined,
-              }
-            ]
+      prev.map(chat => {
+        if (chat.id !== chatId) return chat
+
+        // Estado del visto para mensajes enviados
+        let isRead: boolean | undefined
+        let readAt: number | undefined
+        if (!asMe) {
+          isRead = undefined // recibido: sin tilde de enviado
+        } else {
+          const receipts = chat.readReceipts !== false // default true
+          const delayMin = chat.readDelayMinutes ?? 0
+          if (!receipts) {
+            isRead = false // nunca se pone azul (queda gris)
+          } else if (delayMin > 0) {
+            isRead = false
+            readAt = nowMs + delayMin * 60000
+          } else {
+            isRead = true
           }
-          : chat
-      )
+        }
+
+        return {
+          ...chat,
+          messages: [
+            ...chat.messages,
+            {
+              id: Date.now(),
+              text,
+              time: formatTime(now),
+              timestamp: nowMs,
+              isSent: asMe,
+              isRead,
+              readAt,
+            },
+          ],
+        }
+      })
     )
   }
 
@@ -113,7 +175,7 @@ export function useChats() {
     )
   }
 
-  const updateChat = (chatId: number, updates: Partial<Pick<Chat, "name" | "avatar" | "description" | "category" | "isArchived" | "isPinned" | "showOnline">>) => {
+  const updateChat = (chatId: number, updates: Partial<Pick<Chat, "name" | "avatar" | "description" | "category" | "isArchived" | "isPinned" | "showOnline" | "readReceipts" | "readDelayMinutes">>) => {
     setChats(prev =>
       prev.map(chat =>
         chat.id === chatId

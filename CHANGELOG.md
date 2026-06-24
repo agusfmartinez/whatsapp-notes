@@ -1,6 +1,7 @@
 # Changelog
 
 ## v1.2.0 - 2026-06-23
+- Visto (tilde azul) configurable por chat: switch para activar/desactivar el visto azul en mensajes enviados, y demora en minutos (0 = inmediato; >0 simula que leen después de X tiempo). El enviado muestra tilde gris hasta que se cumple la demora. Persistido por chat; los vistos vencidos se resuelven al reabrir la app.
 - Configuración: el ítem "Configuración" del menú principal ahora abre una pantalla de ajustes. Primer ajuste: nombre de la app editable (reemplaza el "WhatsApp" hardcodeado del título), persistido en localStorage vía nuevo hook useSettings.
 - Buscador dentro del chat: opción "Buscar" en el menú del chat; abre una barra que filtra los mensajes por texto (sin separadores de fecha mientras se busca), con estado "Sin resultados". Se cierra/limpia al cambiar de chat.
 - Tail/pico en mensajes: el primer mensaje de cada cadena (mismo emisor consecutivo, o tras separador de fecha) lleva pico y esquina apuntada; los siguientes van más juntos.
