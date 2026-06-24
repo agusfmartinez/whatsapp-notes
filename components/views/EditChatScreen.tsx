@@ -18,11 +18,13 @@ type CropperState = {
 type EditChatScreenProps = {
   chat: Chat
   chatName: string
+  chatDescription: string
   avatarPreview: string | null
   onBack: () => void
   onSubmit: (e: React.FormEvent) => void
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   setChatName: (name: string) => void
+  setChatDescription: (description: string) => void
   cropper: CropperState
   onCloseCropper: () => void
   onCropXChange: (x: number) => void
@@ -34,11 +36,13 @@ type EditChatScreenProps = {
 export default function EditChatScreen({
   chat,
   chatName,
+  chatDescription,
   avatarPreview,
   onBack,
   onSubmit,
   onFileChange,
   setChatName,
+  setChatDescription,
   cropper,
   onCloseCropper,
   onCropXChange,
@@ -52,6 +56,8 @@ export default function EditChatScreen({
         chat={chat}
         chatName={chatName}
         setChatName={setChatName}
+        chatDescription={chatDescription}
+        setChatDescription={setChatDescription}
         avatarPreview={avatarPreview}
         onBack={onBack}
         onSubmit={onSubmit}

@@ -16,6 +16,7 @@ export type Message = {
     id: number
     name: string
     avatar?: string // dataURL o url
+    description?: string
     messages: Message[]
     category?: string
     isArchived?: boolean

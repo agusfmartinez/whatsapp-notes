@@ -79,11 +79,13 @@ export default function ChatHeader({
         </AvatarFallback>
       </Avatar>
       
-      <div className="flex-1">
+      <div className="flex-1 min-w-0">
         <h2 className="font-medium text-foreground">{chat.name}</h2>
-        {chat.showOnline && (
+        {chat.showOnline ? (
           <p className="text-xs text-muted-foreground">{strings.chatMenu.online}</p>
-        )}
+        ) : chat.description ? (
+          <p className="text-xs text-muted-foreground truncate">{chat.description}</p>
+        ) : null}
       </div>
       
       <div className="flex items-center gap-4">

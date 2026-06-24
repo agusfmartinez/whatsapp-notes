@@ -19,6 +19,7 @@ export interface ChatUIState {
   }
   editChat: {
     name: string
+    description: string
     avatarPreview: string | null
   }
   
@@ -66,6 +67,7 @@ export type ChatUIAction =
   // Formularios
   | { type: "SET_NEW_CHAT_NAME"; payload: string }
   | { type: "SET_EDIT_CHAT_NAME"; payload: string }
+  | { type: "SET_EDIT_CHAT_DESCRIPTION"; payload: string }
   | { type: "RESET_NEW_CHAT_FORM" }
   | { type: "RESET_EDIT_CHAT_FORM" }
   
@@ -95,6 +97,7 @@ const initialState: ChatUIState = {
   },
   editChat: {
     name: "",
+    description: "",
     avatarPreview: null
   },
   imageViewer: {
@@ -168,7 +171,7 @@ export function chatUiReducer(state: ChatUIState, action: ChatUIAction): ChatUIS
       return { 
         ...state, 
         view: "editChat",
-        editChat: { name: "", avatarPreview: null }
+        editChat: { name: "", description: "", avatarPreview: null }
       }
     
     // Composición y mensajes
@@ -200,9 +203,15 @@ export function chatUiReducer(state: ChatUIState, action: ChatUIAction): ChatUIS
       }
     
     case "SET_EDIT_CHAT_NAME":
-      return { 
-        ...state, 
+      return {
+        ...state,
         editChat: { ...state.editChat, name: action.payload }
+      }
+
+    case "SET_EDIT_CHAT_DESCRIPTION":
+      return {
+        ...state,
+        editChat: { ...state.editChat, description: action.payload }
       }
     
     case "RESET_NEW_CHAT_FORM":
@@ -214,7 +223,7 @@ export function chatUiReducer(state: ChatUIState, action: ChatUIAction): ChatUIS
     case "RESET_EDIT_CHAT_FORM":
       return { 
         ...state, 
-        editChat: { name: "", avatarPreview: null }
+        editChat: { name: "", description: "", avatarPreview: null }
       }
     
     // Cropper

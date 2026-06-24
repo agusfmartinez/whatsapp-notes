@@ -10,6 +10,8 @@ interface EditChatFormProps {
   chat: Chat
   chatName: string
   setChatName: (name: string) => void
+  chatDescription: string
+  setChatDescription: (description: string) => void
   avatarPreview: string | null
   onBack: () => void
   onSubmit: (e: React.FormEvent) => void
@@ -20,6 +22,8 @@ export default function EditChatForm({
   chat,
   chatName,
   setChatName,
+  chatDescription,
+  setChatDescription,
   avatarPreview,
   onBack,
   onSubmit,
@@ -84,6 +88,17 @@ export default function EditChatForm({
             placeholder="Ej: Ideas, Tareas, Compras…"
             className="bg-muted border-border text-foreground"
             autoFocus
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm text-muted-foreground mb-2">Descripción</label>
+          <textarea
+            value={chatDescription}
+            onChange={(e) => setChatDescription(e.target.value)}
+            placeholder="Descripción opcional…"
+            rows={3}
+            className="w-full rounded-md bg-muted border border-border text-foreground px-3 py-2 text-sm outline-none resize-none placeholder:text-muted-foreground"
           />
         </div>
 

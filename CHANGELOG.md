@@ -1,6 +1,7 @@
 # Changelog
 
 ## v1.2.0 - 2026-06-23
+- Descripción de chat: campo editable en la página de editar; se muestra bajo el nombre en el header (cuando no está "en línea"). De paso se corrige que el form de editar abría con el nombre vacío en vez de precargado.
 - Indicador "en línea": switch en el menú del chat para mostrar/ocultar "en línea" bajo el nombre en el header.
 - Hover en modo claro: el fondo de hover/focus de menús y botones era azul (`--accent`); ahora es gris sutil.
 - Vaciar chat: opción en el menú del chat (deshabilitada si no hay mensajes) con modal de confirmación; borra todos los mensajes sin eliminar el chat.

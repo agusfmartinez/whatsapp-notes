@@ -163,9 +163,10 @@ export default function WhatsAppInterface() {
 
   const handleEditChat = useCallback(() => {
     if (!selectedChat) return
-    dispatch({ type: "SET_EDIT_CHAT_NAME", payload: selectedChat.name })
-    dispatch({ type: "RESET_EDIT_CHAT_FORM" })
+    // navigate resetea el form; luego prefill con los valores actuales del chat
     dispatch({ type: "NAVIGATE_TO_EDIT_CHAT" })
+    dispatch({ type: "SET_EDIT_CHAT_NAME", payload: selectedChat.name })
+    dispatch({ type: "SET_EDIT_CHAT_DESCRIPTION", payload: selectedChat.description ?? "" })
   }, [selectedChat])
 
   const assignCategory = useCallback((category: string | null) => {
@@ -228,10 +229,11 @@ export default function WhatsAppInterface() {
     e.preventDefault()
     if (!selectedChat || !uiState.editChat.name.trim()) return
     
-    const updates: Partial<Pick<Chat, 'name' | 'avatar'>> = {
-      name: uiState.editChat.name.trim()
+    const updates: Partial<Pick<Chat, 'name' | 'avatar' | 'description'>> = {
+      name: uiState.editChat.name.trim(),
+      description: uiState.editChat.description.trim() || undefined
     }
-    
+
     if (uiState.editChat.avatarPreview) {
       updates.avatar = uiState.editChat.avatarPreview
     }
@@ -363,6 +365,8 @@ export default function WhatsAppInterface() {
         chat={selectedChat}
         chatName={uiState.editChat.name}
         setChatName={(name) => dispatch({ type: "SET_EDIT_CHAT_NAME", payload: name })}
+        chatDescription={uiState.editChat.description}
+        setChatDescription={(d) => dispatch({ type: "SET_EDIT_CHAT_DESCRIPTION", payload: d })}
         avatarPreview={uiState.editChat.avatarPreview}
         onBack={() => dispatch({ type: "NAVIGATE_TO_CHAT", payload: selectedChat.id })}
         onSubmit={handleSaveEditChat}
