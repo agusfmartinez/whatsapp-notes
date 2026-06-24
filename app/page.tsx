@@ -2,6 +2,7 @@
 
 import { useReducer, useMemo, useState, useCallback, useEffect, useRef } from "react"
 import { useChats } from "@/hooks/useChats"
+import { useSettings } from "@/hooks/useSettings"
 import { useKeyboardOffset } from "@/hooks/useKeyboardOffset"
 import { useLongPress } from "@/hooks/useLongPress"
 import { fileToDataURL, compressDataURL } from "@/lib/images"
@@ -15,11 +16,13 @@ import ServiceWorkerClient from "@/components/common/ServiceWorkerClient"
 import NewCategoryModal from "@/components/modals/NewCategoryModal"
 import ConfirmDeleteCategoryModal from "@/components/modals/ConfirmDeleteCategoryModal"
 import ArchivedChatsView from "@/components/views/ArchivedChatsView"
+import SettingsScreen from "@/components/views/SettingsScreen"
 
 export default function WhatsAppInterface() {
   const [uiState, dispatch] = useReducer(chatUiReducer, initialState)
   const [inputValue, setInputValue] = useState("")
   const { chats, createChat, deleteChat, clearChat, sendMessage, deleteMessage, editMessage, updateChat, categories, addCategory, deleteCategory, importData, loaded } = useChats()
+  const { settings, setAppName } = useSettings()
   const restoredLastChat = useRef(false)
   const [restoring, setRestoring] = useState(true)
   const [newCategoryOpen, setNewCategoryOpen] = useState(false)
@@ -413,6 +416,16 @@ export default function WhatsAppInterface() {
     )
   }
 
+  if (uiState.view === "settings") {
+    return (
+      <SettingsScreen
+        appName={settings.appName}
+        onAppNameChange={setAppName}
+        onBack={() => dispatch({ type: "NAVIGATE_BACK_TO_CHATS" })}
+      />
+    )
+  }
+
   if (uiState.view === "archived") {
     return (
       <ArchivedChatsView
@@ -455,6 +468,8 @@ export default function WhatsAppInterface() {
         onCloseImage={() => dispatch({ type: "CLOSE_IMAGE_VIEWER" })}
         onRequestDeleteCategory={requestDeleteCategory}
         onImportData={importData}
+        appName={settings.appName}
+        onOpenSettings={() => dispatch({ type: "NAVIGATE_TO_SETTINGS" })}
       />
     </>
   )

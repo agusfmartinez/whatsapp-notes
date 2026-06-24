@@ -53,6 +53,13 @@ export const strings = {
     importNotes: "Importar notas",
     about: "Acerca de",
   },
+  settings: {
+    title: "Configuración",
+    appNameLabel: "Nombre de la app",
+    appNamePlaceholder: "Ej: WhatsApp, Notas…",
+    appNameHint: "Se muestra como título en la pantalla principal.",
+    back: "Volver",
+  },
   about: {
     title: "WhatsApp Notes",
     description: "Bloc de notas con interfaz estilo WhatsApp. Cada chat es un anotador. Todo se guarda localmente en tu dispositivo.",

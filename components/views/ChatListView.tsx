@@ -26,6 +26,8 @@ type ChatListViewProps = {
   onCloseImage: () => void
   onRequestDeleteCategory: () => void
   onImportData: (data: { chats?: unknown; categories?: unknown }) => void
+  appName: string
+  onOpenSettings: () => void
 }
 
 export default function ChatListView({
@@ -41,6 +43,8 @@ export default function ChatListView({
   onCloseImage,
   onRequestDeleteCategory,
   onImportData,
+  appName,
+  onOpenSettings,
 }: ChatListViewProps) {
   const [isDark, setIsDark] = useState(true)
   const [search, setSearch] = useState("")
@@ -132,7 +136,7 @@ export default function ChatListView({
       <div className="bg-background text-foreground h-screen w-screen flex flex-col">
         {/* Header */}
         <div className="flex justify-between items-center px-4 py-3">
-          <h1 className="text-xl font-medium">{strings.appTitle}</h1>
+          <h1 className="text-xl font-medium">{appName || strings.appTitle}</h1>
           <div className="flex items-center gap-4">
             <Camera size={24} aria-hidden="true" />
             <OptionsMenu
@@ -146,7 +150,7 @@ export default function ChatListView({
                 { label: strings.mainMenu.importNotes, onSelect: () => importInputRef.current?.click() },
                 { label: strings.mainMenu.about, onSelect: () => setAboutOpen(true) },
                 { label: "__divider__" },
-                { label: strings.mainMenu.settings },
+                { label: strings.mainMenu.settings, onSelect: onOpenSettings },
               ]}
             />
             <input
