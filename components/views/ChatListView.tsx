@@ -40,6 +40,7 @@ export default function ChatListView({
   onRequestDeleteCategory,
 }: ChatListViewProps) {
   const [isDark, setIsDark] = useState(true)
+  const [search, setSearch] = useState("")
   const safeChats = Array.isArray(chats) ? chats : []
 
   useEffect(() => {
@@ -58,9 +59,17 @@ export default function ChatListView({
   }
 
   const visibleChats = safeChats.filter(chat => !chat.isArchived)
-  const filteredChats = activeTab === "todos"
+  const tabChats = activeTab === "todos"
     ? visibleChats
     : visibleChats.filter(chat => chat.category === activeTab)
+
+  const query = search.trim().toLowerCase()
+  const filteredChats = query
+    ? tabChats.filter(chat =>
+        chat.name.toLowerCase().includes(query) ||
+        chat.messages.some(m => m.text.toLowerCase().includes(query))
+      )
+    : tabChats
 
   const isCustomCategory = !["todos", "no-leidos", "favoritos", "grupos"].includes(activeTab)
 
@@ -100,7 +109,7 @@ export default function ChatListView({
           </div>
         </div>
 
-        <SearchBar />
+        <SearchBar value={search} onChange={setSearch} placeholder={strings.searchPlaceholder} />
 
         <FilterTabs
           activeTab={activeTab}

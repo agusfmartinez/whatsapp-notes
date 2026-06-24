@@ -1,11 +1,12 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Chat } from "@/types/chat"
+import { Chat, Category } from "@/types/chat"
 import { formatTime } from "@/lib/time"
 
 export function useChats() {
   const [chats, setChats] = useState<Chat[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
 
   // Cargar desde localStorage al iniciar
   useEffect(() => {
@@ -16,12 +17,26 @@ export function useChats() {
     } else {
       setChats([])
     }
+
+    const savedCategories = localStorage.getItem("categories")
+    if (savedCategories) {
+      try {
+        setCategories(JSON.parse(savedCategories))
+      } catch {
+        setCategories([])
+      }
+    }
   }, [])
 
   // Guardar cada vez que cambien los chats
   useEffect(() => {
     localStorage.setItem("chats", JSON.stringify(chats))
   }, [chats])
+
+  // Persistir categorías
+  useEffect(() => {
+    localStorage.setItem("categories", JSON.stringify(categories))
+  }, [categories])
 
   const createChat = (name: string, avatar?: string) => {
     const newChat: Chat = {
@@ -97,14 +112,37 @@ export function useChats() {
     )
   }
 
+  // Crea una categoría con id derivado del nombre (único). Devuelve el id.
+  const addCategory = (label: string) => {
+    const name = label.trim()
+    if (!name) return null
+    const baseId = name.toLowerCase().replace(/\s+/g, "-")
+    let id = baseId
+    setCategories(prev => {
+      const exists = prev.some(c => c.id === baseId)
+      id = exists ? `${baseId}-${Date.now()}` : baseId
+      return [...prev, { id, label: name }]
+    })
+    return id
+  }
+
+  // Elimina la categoría y la quita de los chats que la usaban.
+  const deleteCategory = (categoryId: string) => {
+    setCategories(prev => prev.filter(c => c.id !== categoryId))
+    setChats(prev => prev.map(c => (c.category === categoryId ? { ...c, category: undefined } : c)))
+  }
+
   return {
     chats,
     setChats,
+    categories,
     createChat,
     deleteChat,
     sendMessage,
     deleteMessage,
     editMessage,
-    updateChat
+    updateChat,
+    addCategory,
+    deleteCategory
   }
 }

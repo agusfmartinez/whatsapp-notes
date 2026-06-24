@@ -7,6 +7,11 @@ export type Message = {
     isRead?: boolean
   }
   
+  export type Category = {
+    id: string
+    label: string
+  }
+
   export type Chat = {
     id: number
     name: string

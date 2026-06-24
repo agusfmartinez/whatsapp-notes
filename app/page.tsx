@@ -1,6 +1,6 @@
 "use client"
 
-import { useReducer, useMemo, useState, useCallback, useEffect } from "react"
+import { useReducer, useMemo, useState, useCallback } from "react"
 import { useChats } from "@/hooks/useChats"
 import { useKeyboardOffset } from "@/hooks/useKeyboardOffset"
 import { useLongPress } from "@/hooks/useLongPress"
@@ -19,8 +19,7 @@ import ArchivedChatsView from "@/components/views/ArchivedChatsView"
 export default function WhatsAppInterface() {
   const [uiState, dispatch] = useReducer(chatUiReducer, initialState)
   const [inputValue, setInputValue] = useState("")
-  const { chats, setChats, createChat, deleteChat, sendMessage, deleteMessage, editMessage, updateChat } = useChats()
-  const [categories, setCategories] = useState<{ id: string; label: string }[]>([])
+  const { chats, createChat, deleteChat, sendMessage, deleteMessage, editMessage, updateChat, categories, addCategory, deleteCategory } = useChats()
   const [newCategoryOpen, setNewCategoryOpen] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState("")
   const [deleteCategoryOpen, setDeleteCategoryOpen] = useState(false)
@@ -35,21 +34,6 @@ export default function WhatsAppInterface() {
     if (!uiState.selectedChatId) return null
     return chats.find(c => c.id === uiState.selectedChatId) || null
   }, [chats, uiState.selectedChatId])
-
-  useEffect(() => {
-    const saved = localStorage.getItem("categories")
-    if (saved) {
-      try {
-        setCategories(JSON.parse(saved))
-      } catch {
-        setCategories([])
-      }
-    }
-  }, [])
-
-  useEffect(() => {
-    localStorage.setItem("categories", JSON.stringify(categories))
-  }, [categories])
 
   const openCropperFor = async (file: File, target: "new" | "edit") => {
     const raw = await fileToDataURL(file)
@@ -184,14 +168,9 @@ export default function WhatsAppInterface() {
   }, [])
 
   const saveNewCategory = useCallback(() => {
-    const name = newCategoryName.trim()
-    if (!name) return
-    const baseId = name.toLowerCase().replace(/\s+/g, "-")
-    const exists = categories.some(c => c.id === baseId)
-    const id = exists ? `${baseId}-${Date.now()}` : baseId
-    setCategories(prev => [...prev, { id, label: name }])
+    if (!addCategory(newCategoryName)) return
     setNewCategoryOpen(false)
-  }, [newCategoryName, categories])
+  }, [newCategoryName, addCategory])
 
   const requestDeleteCategory = useCallback(() => {
     if (activeTab === "todos" || activeTab === "no-leidos" || activeTab === "favoritos" || activeTab === "grupos") return
@@ -203,13 +182,12 @@ export default function WhatsAppInterface() {
 
   const confirmDeleteCategory = useCallback(() => {
     if (!deleteCategoryId) return
-    setCategories(prev => prev.filter(c => c.id !== deleteCategoryId))
-    setChats(prev => prev.map(c => (c.category === deleteCategoryId ? { ...c, category: undefined } : c)))
+    deleteCategory(deleteCategoryId)
     setDeleteCategoryOpen(false)
     setDeleteCategoryId(null)
     setDeleteCategoryName("")
     setActiveTab("todos")
-  }, [deleteCategoryId, setChats])
+  }, [deleteCategoryId, deleteCategory])
 
   const handleSaveEditChat = (e: React.FormEvent) => {
     e.preventDefault()

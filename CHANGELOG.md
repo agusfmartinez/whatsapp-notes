@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.2.0 - 2026-06-23
+- Buscador funcional en la pantalla principal: filtra chats por nombre y por contenido de los mensajes.
+- Unificación de estado: las categorías ahora viven en el hook `useChats` (fuente de verdad única) en lugar de estado suelto en `page.tsx`. Nuevo tipo `Category` y acciones `addCategory`/`deleteCategory`.
+- Seguridad: actualización de Next 15.5.9 → 15.5.19 (resueltas las advisories high: DoS/SSRF/XSS/cache poisoning).
+- Mantenimiento: `package.json` sincronizado a la versión publicada; `DEPLOYS.md` reescrito con el flujo real de ramas (`master`/`develop`); renombre de notas a Markdown.
+
 ## v1.1.0 - 2026-01-20
 - Switch para cambiar entre modo oscuro y modo claro.
 - Categorias: Agregar chat a una categoría existente, crear nueva categoría, eliminar categoría.
