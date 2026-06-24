@@ -200,8 +200,16 @@ export default function ChatView({
       {/* Messages (scrolleable) */}
       <div
         ref={messagesRef}
-        className="flex-1 overflow-y-auto px-4 py-4 space-y-2"
-        style={{ paddingBottom: kbOffset + 88, scrollPaddingBottom: 88 }}
+        className="flex-1 overflow-y-auto px-4 py-4 space-y-2 bg-cover bg-center"
+        style={{
+          paddingBottom: kbOffset + 88,
+          scrollPaddingBottom: 88,
+          ...(chat.background
+            ? chat.background.startsWith("data:")
+              ? { backgroundImage: `url(${chat.background})` }
+              : { backgroundColor: chat.background }
+            : {}),
+        }}
         onClick={() => {
           // tap en cualquier parte del área de mensajes (fuera de una burbuja)
           // des-selecciona; la burbuja frena la propagación.

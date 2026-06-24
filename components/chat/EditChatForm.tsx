@@ -2,9 +2,12 @@
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Check } from "lucide-react"
 import { Chat } from "@/types/chat"
+import { fileToDataURL, compressImageFull } from "@/lib/images"
 import Image from "next/image"
+
+const BG_COLORS = ["#0b141a", "#1f2c34", "#0a3d2e", "#3b2f0a", "#2a1f3d", "#3d0a1f"]
 
 interface EditChatFormProps {
   chat: Chat
@@ -16,6 +19,8 @@ interface EditChatFormProps {
   setReadReceipts: (v: boolean) => void
   readDelayMinutes: number
   setReadDelayMinutes: (n: number) => void
+  background: string | null
+  setBackground: (b: string | null) => void
   avatarPreview: string | null
   onBack: () => void
   onSubmit: (e: React.FormEvent) => void
@@ -32,11 +37,23 @@ export default function EditChatForm({
   setReadReceipts,
   readDelayMinutes,
   setReadDelayMinutes,
+  background,
+  setBackground,
   avatarPreview,
   onBack,
   onSubmit,
   onFileChange
 }: EditChatFormProps) {
+  const isImageBg = !!background && background.startsWith("data:")
+
+  const handleBgFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ""
+    if (!file || !file.type.startsWith("image/")) return
+    const raw = await fileToDataURL(file)
+    const compressed = await compressImageFull(raw, 1080, true, 0.7)
+    setBackground(compressed)
+  }
   return (
     <div className="bg-background text-foreground h-[100dvh] w-screen flex flex-col">
       {/* Header */}
@@ -135,6 +152,41 @@ export default function EditChatForm({
                 0 = visto inmediato. Mayor a 0 simula que leen después de ese tiempo.
               </p>
             </div>
+          )}
+        </div>
+
+        <div className="space-y-2 pt-2 border-t border-border">
+          <label className="block text-sm text-muted-foreground">Fondo del chat</label>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setBackground(null)}
+              aria-label="Sin fondo"
+              className={`w-9 h-9 rounded-full border border-border bg-background flex items-center justify-center ${!background ? "ring-2 ring-[#21c063]" : ""}`}
+            >
+              {!background && <Check size={16} className="text-foreground" />}
+            </button>
+            {BG_COLORS.map((color) => (
+              <button
+                key={color}
+                type="button"
+                onClick={() => setBackground(color)}
+                aria-label={`Fondo ${color}`}
+                style={{ backgroundColor: color }}
+                className={`w-9 h-9 rounded-full border border-border flex items-center justify-center ${background === color ? "ring-2 ring-[#21c063]" : ""}`}
+              >
+                {background === color && <Check size={16} className="text-white" />}
+              </button>
+            ))}
+            <label className={`w-9 h-9 rounded-full border border-border bg-muted flex items-center justify-center cursor-pointer text-xs text-muted-foreground ${isImageBg ? "ring-2 ring-[#21c063]" : ""}`}>
+              IMG
+              <input type="file" accept="image/*" onChange={handleBgFile} className="hidden" />
+            </label>
+          </div>
+          {isImageBg && (
+            <button type="button" onClick={() => setBackground(null)} className="text-xs text-red-400">
+              Quitar imagen
+            </button>
           )}
         </div>
 

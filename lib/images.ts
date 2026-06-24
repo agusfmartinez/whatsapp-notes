@@ -48,3 +48,32 @@ export async function compressDataURL(
   const mime = useWebP ? "image/webp" : "image/jpeg"
   return canvas.toDataURL(mime, quality)
 }
+
+/**
+ * Reduce una imagen completa (sin recortar) a un ancho/alto máximo y la
+ * exporta comprimida. Útil para fondos de chat sin reventar localStorage.
+ */
+export async function compressImageFull(
+  srcDataURL: string,
+  maxDim = 1080,
+  preferWebP = true,
+  quality = 0.7
+): Promise<string> {
+  const img = new Image()
+  img.src = srcDataURL
+  await img.decode()
+
+  const scale = Math.min(1, maxDim / Math.max(img.width, img.height))
+  const w = Math.round(img.width * scale)
+  const h = Math.round(img.height * scale)
+
+  const canvas = document.createElement("canvas")
+  canvas.width = w
+  canvas.height = h
+  const ctx = canvas.getContext("2d")!
+  ctx.drawImage(img, 0, 0, w, h)
+
+  const useWebP = preferWebP && supportsWebP()
+  const mime = useWebP ? "image/webp" : "image/jpeg"
+  return canvas.toDataURL(mime, quality)
+}

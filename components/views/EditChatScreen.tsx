@@ -21,6 +21,7 @@ type EditChatScreenProps = {
   chatDescription: string
   readReceipts: boolean
   readDelayMinutes: number
+  background: string | null
   avatarPreview: string | null
   onBack: () => void
   onSubmit: (e: React.FormEvent) => void
@@ -29,6 +30,7 @@ type EditChatScreenProps = {
   setChatDescription: (description: string) => void
   setReadReceipts: (v: boolean) => void
   setReadDelayMinutes: (n: number) => void
+  setBackground: (b: string | null) => void
   cropper: CropperState
   onCloseCropper: () => void
   onCropXChange: (x: number) => void
@@ -43,6 +45,7 @@ export default function EditChatScreen({
   chatDescription,
   readReceipts,
   readDelayMinutes,
+  background,
   avatarPreview,
   onBack,
   onSubmit,
@@ -51,6 +54,7 @@ export default function EditChatScreen({
   setChatDescription,
   setReadReceipts,
   setReadDelayMinutes,
+  setBackground,
   cropper,
   onCloseCropper,
   onCropXChange,
@@ -70,6 +74,8 @@ export default function EditChatScreen({
         setReadReceipts={setReadReceipts}
         readDelayMinutes={readDelayMinutes}
         setReadDelayMinutes={setReadDelayMinutes}
+        background={background}
+        setBackground={setBackground}
         avatarPreview={avatarPreview}
         onBack={onBack}
         onSubmit={onSubmit}

@@ -22,6 +22,7 @@ export interface ChatUIState {
     description: string
     readReceipts: boolean
     readDelayMinutes: number
+    background: string | null
     avatarPreview: string | null
   }
   
@@ -73,6 +74,7 @@ export type ChatUIAction =
   | { type: "SET_EDIT_CHAT_DESCRIPTION"; payload: string }
   | { type: "SET_EDIT_CHAT_READ_RECEIPTS"; payload: boolean }
   | { type: "SET_EDIT_CHAT_READ_DELAY"; payload: number }
+  | { type: "SET_EDIT_CHAT_BACKGROUND"; payload: string | null }
   | { type: "RESET_NEW_CHAT_FORM" }
   | { type: "RESET_EDIT_CHAT_FORM" }
   
@@ -105,6 +107,7 @@ const initialState: ChatUIState = {
     description: "",
     readReceipts: true,
     readDelayMinutes: 0,
+    background: null,
     avatarPreview: null
   },
   imageViewer: {
@@ -187,7 +190,7 @@ export function chatUiReducer(state: ChatUIState, action: ChatUIAction): ChatUIS
       return { 
         ...state, 
         view: "editChat",
-        editChat: { name: "", description: "", readReceipts: true, readDelayMinutes: 0, avatarPreview: null }
+        editChat: { name: "", description: "", readReceipts: true, readDelayMinutes: 0, background: null, avatarPreview: null }
       }
     
     // Composición y mensajes
@@ -241,6 +244,12 @@ export function chatUiReducer(state: ChatUIState, action: ChatUIAction): ChatUIS
         ...state,
         editChat: { ...state.editChat, readDelayMinutes: action.payload }
       }
+
+    case "SET_EDIT_CHAT_BACKGROUND":
+      return {
+        ...state,
+        editChat: { ...state.editChat, background: action.payload }
+      }
     
     case "RESET_NEW_CHAT_FORM":
       return { 
@@ -251,7 +260,7 @@ export function chatUiReducer(state: ChatUIState, action: ChatUIAction): ChatUIS
     case "RESET_EDIT_CHAT_FORM":
       return { 
         ...state, 
-        editChat: { name: "", description: "", readReceipts: true, readDelayMinutes: 0, avatarPreview: null }
+        editChat: { name: "", description: "", readReceipts: true, readDelayMinutes: 0, background: null, avatarPreview: null }
       }
     
     // Cropper

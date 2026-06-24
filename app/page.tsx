@@ -172,6 +172,7 @@ export default function WhatsAppInterface() {
     dispatch({ type: "SET_EDIT_CHAT_DESCRIPTION", payload: selectedChat.description ?? "" })
     dispatch({ type: "SET_EDIT_CHAT_READ_RECEIPTS", payload: selectedChat.readReceipts !== false })
     dispatch({ type: "SET_EDIT_CHAT_READ_DELAY", payload: selectedChat.readDelayMinutes ?? 0 })
+    dispatch({ type: "SET_EDIT_CHAT_BACKGROUND", payload: selectedChat.background ?? null })
   }, [selectedChat])
 
   const assignCategory = useCallback((category: string | null) => {
@@ -234,11 +235,12 @@ export default function WhatsAppInterface() {
     e.preventDefault()
     if (!selectedChat || !uiState.editChat.name.trim()) return
     
-    const updates: Partial<Pick<Chat, 'name' | 'avatar' | 'description' | 'readReceipts' | 'readDelayMinutes'>> = {
+    const updates: Partial<Pick<Chat, 'name' | 'avatar' | 'description' | 'readReceipts' | 'readDelayMinutes' | 'background'>> = {
       name: uiState.editChat.name.trim(),
       description: uiState.editChat.description.trim() || undefined,
       readReceipts: uiState.editChat.readReceipts,
-      readDelayMinutes: Math.max(0, uiState.editChat.readDelayMinutes || 0)
+      readDelayMinutes: Math.max(0, uiState.editChat.readDelayMinutes || 0),
+      background: uiState.editChat.background || undefined
     }
 
     if (uiState.editChat.avatarPreview) {
@@ -378,6 +380,8 @@ export default function WhatsAppInterface() {
         setReadReceipts={(v) => dispatch({ type: "SET_EDIT_CHAT_READ_RECEIPTS", payload: v })}
         readDelayMinutes={uiState.editChat.readDelayMinutes}
         setReadDelayMinutes={(n) => dispatch({ type: "SET_EDIT_CHAT_READ_DELAY", payload: n })}
+        background={uiState.editChat.background}
+        setBackground={(b) => dispatch({ type: "SET_EDIT_CHAT_BACKGROUND", payload: b })}
         avatarPreview={uiState.editChat.avatarPreview}
         onBack={() => dispatch({ type: "NAVIGATE_TO_CHAT", payload: selectedChat.id })}
         onSubmit={handleSaveEditChat}

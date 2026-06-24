@@ -25,6 +25,7 @@ export type Message = {
     showOnline?: boolean
     readReceipts?: boolean // mostrar visto azul en enviados (default true)
     readDelayMinutes?: number // demora del visto azul, en minutos (default 0)
+    background?: string // color (hex/css) o imagen (dataURL) de fondo del chat
     hasSticker?: boolean
     isOfficial?: boolean
     isGroup?: boolean
