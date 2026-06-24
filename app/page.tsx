@@ -19,7 +19,7 @@ import ArchivedChatsView from "@/components/views/ArchivedChatsView"
 export default function WhatsAppInterface() {
   const [uiState, dispatch] = useReducer(chatUiReducer, initialState)
   const [inputValue, setInputValue] = useState("")
-  const { chats, createChat, deleteChat, sendMessage, deleteMessage, editMessage, updateChat, categories, addCategory, deleteCategory, loaded } = useChats()
+  const { chats, createChat, deleteChat, clearChat, sendMessage, deleteMessage, editMessage, updateChat, categories, addCategory, deleteCategory, loaded } = useChats()
   const restoredLastChat = useRef(false)
   const [newCategoryOpen, setNewCategoryOpen] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState("")
@@ -246,6 +246,20 @@ export default function WhatsAppInterface() {
     dispatch({ type: "CLOSE_CONFIRM_DELETE" })
   }
 
+  const requestClearChat = useCallback((chatId: number) => {
+    dispatch({ type: "OPEN_CONFIRM_CLEAR", payload: chatId })
+  }, [])
+
+  const confirmClearChat = () => {
+    if (uiState.confirmClear.chatId == null) return
+    clearChat(uiState.confirmClear.chatId)
+    dispatch({ type: "CLOSE_CONFIRM_CLEAR" })
+  }
+
+  const cancelClearChat = () => {
+    dispatch({ type: "CLOSE_CONFIRM_CLEAR" })
+  }
+
   // ChatController - objeto con todos los handlers para ChatView
   const chatController = useMemo(() => ({
     onBack: () => {
@@ -259,6 +273,7 @@ export default function WhatsAppInterface() {
     onArchiveChat: archiveSelectedChat,
     onUnarchiveChat: unarchiveSelectedChat,
     onTogglePin: togglePinSelectedChat,
+    onClearChat: requestClearChat,
     onToggleComposeMode: () => dispatch({ type: "TOGGLE_COMPOSE_MODE" }),
     onEditMessage: beginEditSelectedMessage,
     onDeleteMessage: deleteSelectedMessage,
@@ -287,6 +302,7 @@ export default function WhatsAppInterface() {
     archiveSelectedChat,
     unarchiveSelectedChat,
     togglePinSelectedChat,
+    requestClearChat,
     categories,
     openNewCategory,
     saveEditedMessage,
@@ -353,6 +369,9 @@ export default function WhatsAppInterface() {
           confirmDelete={uiState.confirmDelete}
           onCancelDelete={cancelDeleteChat}
           onConfirmDelete={confirmDeleteChat}
+          confirmClear={uiState.confirmClear}
+          onCancelClear={cancelClearChat}
+          onConfirmClear={confirmClearChat}
         />
         <NewCategoryModal
           isOpen={newCategoryOpen}

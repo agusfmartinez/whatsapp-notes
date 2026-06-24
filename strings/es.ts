@@ -25,6 +25,7 @@ export const strings = {
     unarchive: "Desarchivar chat",
     pin: "Fijar chat",
     unpin: "Desfijar chat",
+    clear: "Vaciar chat",
     delete: "Eliminar chat",
     toggleComposeMe: {
       send: "Enviar mensaje",

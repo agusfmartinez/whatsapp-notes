@@ -56,6 +56,14 @@ export function useChats() {
     setChats(prev => prev.filter(chat => chat.id !== chatId))
   }
 
+  const clearChat = (chatId: number) => {
+    setChats(prev =>
+      prev.map(chat =>
+        chat.id === chatId ? { ...chat, messages: [] } : chat
+      )
+    )
+  }
+
   const sendMessage = (chatId: number, text: string, asMe: boolean) => {
     const now = new Date()
     setChats(prev =>
@@ -142,6 +150,7 @@ export function useChats() {
     loaded,
     createChat,
     deleteChat,
+    clearChat,
     sendMessage,
     deleteMessage,
     editMessage,

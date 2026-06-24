@@ -3,6 +3,7 @@
 import ChatView from "@/components/chat/ChatView"
 import ImageViewerModal from "@/components/modals/ImageViewerModal"
 import ConfirmDeleteChatModal from "@/components/modals/ConfirmDeleteChatModal"
+import ConfirmClearChatModal from "@/components/modals/ConfirmClearChatModal"
 import { Chat } from "@/types/chat"
 
 type ChatController = {
@@ -12,6 +13,7 @@ type ChatController = {
   onArchiveChat: () => void
   onUnarchiveChat: () => void
   onTogglePin: () => void
+  onClearChat: (chatId: number) => void
   onToggleComposeMode: () => void
   onEditMessage: () => void
   onDeleteMessage: () => void
@@ -40,6 +42,9 @@ type ChatScreenProps = {
   confirmDelete: { isOpen: boolean; chatId: number | null }
   onCancelDelete: () => void
   onConfirmDelete: () => void
+  confirmClear: { isOpen: boolean; chatId: number | null }
+  onCancelClear: () => void
+  onConfirmClear: () => void
 }
 
 export default function ChatScreen({
@@ -56,6 +61,9 @@ export default function ChatScreen({
   confirmDelete,
   onCancelDelete,
   onConfirmDelete,
+  confirmClear,
+  onCancelClear,
+  onConfirmClear,
 }: ChatScreenProps) {
   return (
     <>
@@ -81,6 +89,13 @@ export default function ChatScreen({
         chatName={chat?.name}
         onCancel={onCancelDelete}
         onConfirm={onConfirmDelete}
+      />
+
+      <ConfirmClearChatModal
+        isOpen={confirmClear.isOpen}
+        chatName={chat?.name}
+        onCancel={onCancelClear}
+        onConfirm={onConfirmClear}
       />
     </>
   )

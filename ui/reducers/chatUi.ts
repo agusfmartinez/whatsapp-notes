@@ -31,6 +31,10 @@ export interface ChatUIState {
     isOpen: boolean
     chatId: number | null
   }
+  confirmClear: {
+    isOpen: boolean
+    chatId: number | null
+  }
   cropper: {
     isOpen: boolean
     src: string | null
@@ -76,6 +80,8 @@ export type ChatUIAction =
   | { type: "CLOSE_IMAGE_VIEWER" }
   | { type: "OPEN_CONFIRM_DELETE"; payload: number }
   | { type: "CLOSE_CONFIRM_DELETE" }
+  | { type: "OPEN_CONFIRM_CLEAR"; payload: number }
+  | { type: "CLOSE_CONFIRM_CLEAR" }
 
 const initialState: ChatUIState = {
   view: "chatList",
@@ -96,6 +102,10 @@ const initialState: ChatUIState = {
     src: null
   },
   confirmDelete: {
+    isOpen: false,
+    chatId: null
+  },
+  confirmClear: {
     isOpen: false,
     chatId: null
   },
@@ -284,7 +294,19 @@ export function chatUiReducer(state: ChatUIState, action: ChatUIAction): ChatUIS
         ...state,
         confirmDelete: { isOpen: false, chatId: null }
       }
-    
+
+    case "OPEN_CONFIRM_CLEAR":
+      return {
+        ...state,
+        confirmClear: { isOpen: true, chatId: action.payload }
+      }
+
+    case "CLOSE_CONFIRM_CLEAR":
+      return {
+        ...state,
+        confirmClear: { isOpen: false, chatId: null }
+      }
+
     default:
       return state
   }
