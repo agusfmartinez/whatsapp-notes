@@ -16,37 +16,37 @@ No hace falta versionar cada commit. Se sube versión al cerrar algo estable
 
 Repo de GitHub conectado a Vercel:
 
-- Cada push a **`master`** (Production Branch) → **Production Deployment**.
+- Cada push a **`main`** (Production Branch) → **Production Deployment**.
 - Cada branch / PR (ej: `develop`) → **Preview Deployment** con URL temporal
   tipo `whatsapp-notes-git-develop-usuario.vercel.app`.
 
 Environments y sus variables:
 
 - **Development** → `npm run dev` local.
-- **Preview** → branches que no son `master`.
-- **Production** → branch `master`.
+- **Preview** → branches que no son `main`.
+- **Production** → branch `main`.
 
 ## Ramas
 
-- **`master`** → producción estable (Production Branch en Vercel).
+- **`main`** → producción estable (Production Branch en Vercel).
 - **`develop`** → trabajo día a día; base de las branches feature.
 
 ## Flujo de trabajo
 
 1. Trabajás en `develop` (o feature branch).
 2. Cada push genera URL Preview en Vercel → probás ahí.
-3. Cuando validás, mergeás a `master` para disparar producción.
+3. Cuando validás, mergeás a `main` para disparar producción.
 
 ### Cerrar una versión
 
 ```bash
 # Estás en develop
-git checkout master
+git checkout main
 git merge develop
-git push origin master   # 🚀 producción
+git push origin main   # 🚀 producción
 
-# Volvés a develop y lo mantenés al día con master
+# Volvés a develop y lo mantenés al día con main
 git checkout develop
-git merge master         # 🔄 traer lo último de prod
+git merge main         # 🔄 traer lo último de prod
 git push origin develop
 ```
