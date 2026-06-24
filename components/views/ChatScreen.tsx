@@ -11,6 +11,7 @@ type ChatController = {
   onDeleteChat: (chatId: number) => void
   onArchiveChat: () => void
   onUnarchiveChat: () => void
+  onTogglePin: () => void
   onToggleComposeMode: () => void
   onEditMessage: () => void
   onDeleteMessage: () => void

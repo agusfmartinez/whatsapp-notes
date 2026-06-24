@@ -12,6 +12,9 @@ type ChatListProps = {
 
 export default function ChatList({ chats, onChatClick, onAvatarClick }: ChatListProps) {
   const sortedChats = [...chats].sort((a, b) => {
+    // Chats fijados primero
+    if (!!a.isPinned !== !!b.isPinned) return a.isPinned ? -1 : 1
+
     const lastA = a.messages[a.messages.length - 1]
     const lastB = b.messages[b.messages.length - 1]
 

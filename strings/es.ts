@@ -23,6 +23,8 @@ export const strings = {
     contactInfo: "Info del contacto",
     archive: "Archivar chat",
     unarchive: "Desarchivar chat",
+    pin: "Fijar chat",
+    unpin: "Desfijar chat",
     delete: "Eliminar chat",
     toggleComposeMe: {
       send: "Enviar mensaje",

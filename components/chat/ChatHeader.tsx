@@ -25,6 +25,7 @@ interface ChatHeaderProps {
   onDeleteChat: (chatId: number) => void
   onArchiveChat: () => void
   onUnarchiveChat: () => void
+  onTogglePin: () => void
   onToggleComposeMode: () => void
   onEditMessage: () => void
   onDeleteMessage: () => void
@@ -43,6 +44,7 @@ export default function ChatHeader({
   onDeleteChat,
   onArchiveChat,
   onUnarchiveChat,
+  onTogglePin,
   onToggleComposeMode,
   onEditMessage,
   onDeleteMessage,
@@ -90,6 +92,9 @@ export default function ChatHeader({
             <DropdownMenuItem onClick={onEditChat}>{strings.chatMenu.contactInfo}</DropdownMenuItem>
             <DropdownMenuItem onClick={chat.isArchived ? onUnarchiveChat : onArchiveChat}>
               {chat.isArchived ? strings.chatMenu.unarchive : strings.chatMenu.archive}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onTogglePin}>
+              {chat.isPinned ? strings.chatMenu.unpin : strings.chatMenu.pin}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onDeleteChat(chat.id)} className="text-red-500 focus:text-red-600">
               {strings.chatMenu.delete}

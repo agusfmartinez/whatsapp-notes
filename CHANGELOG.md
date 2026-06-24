@@ -1,6 +1,8 @@
 # Changelog
 
 ## v1.2.0 - 2026-06-23
+- Chats fijados: opción "Fijar/Desfijar chat" en el menú del chat; los fijados aparecen primero en la lista (indicador 📌).
+- Fix: la vista de chat tenía un fondo rojo de debug (`bg-red-900/50`); ahora usa los tokens `bg-background`/`text-foreground`.
 - Buscador funcional en la pantalla principal: filtra chats por nombre y por contenido de los mensajes.
 - Unificación de estado: las categorías ahora viven en el hook `useChats` (fuente de verdad única) en lugar de estado suelto en `page.tsx`. Nuevo tipo `Category` y acciones `addCategory`/`deleteCategory`.
 - Seguridad: actualización de Next 15.5.9 → 15.5.19 (resueltas las advisories high: DoS/SSRF/XSS/cache poisoning).

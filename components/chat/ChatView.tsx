@@ -14,6 +14,7 @@ interface ChatController {
   onDeleteChat: (chatId: number) => void
   onArchiveChat: () => void
   onUnarchiveChat: () => void
+  onTogglePin: () => void
   onToggleComposeMode: () => void
   onEditMessage: () => void
   onDeleteMessage: () => void
@@ -123,7 +124,7 @@ export default function ChatView({
   
 
   return (
-    <div className="bg-red-900/50 text-white h-[100dvh] w-screen flex flex-col overflow-hidden">
+    <div className="bg-background text-foreground h-[100dvh] w-screen flex flex-col overflow-hidden">
       <ChatHeader
         chat={chat}
         composeAsMe={composeAsMe}
@@ -133,6 +134,7 @@ export default function ChatView({
         onDeleteChat={chatController.onDeleteChat}
         onArchiveChat={chatController.onArchiveChat}
         onUnarchiveChat={chatController.onUnarchiveChat}
+        onTogglePin={chatController.onTogglePin}
         onToggleComposeMode={chatController.onToggleComposeMode}
         onEditMessage={chatController.onEditMessage}
         onDeleteMessage={chatController.onDeleteMessage}
