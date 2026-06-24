@@ -38,6 +38,10 @@ export const strings = {
     removeCategory: "Quitar categoría",
     editMessage: "Editar mensaje",
     deleteMessage: "Borrar mensaje",
+    search: "Buscar",
+    searchPlaceholder: "Buscar en el chat",
+    searchNoResults: "Sin resultados",
+    closeSearch: "Cerrar búsqueda",
   },
   mainMenu: {
     broadcast: "Nueva difusión",

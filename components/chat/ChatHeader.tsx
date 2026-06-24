@@ -35,6 +35,7 @@ interface ChatHeaderProps {
   onAssignCategory: (category: string | null) => void
   categories: { id: string; label: string }[]
   onCreateCategory: () => void
+  onOpenSearch: () => void
 }
 
 export default function ChatHeader({
@@ -55,7 +56,8 @@ export default function ChatHeader({
   onEditChat,
   onAssignCategory,
   categories = [],
-  onCreateCategory
+  onCreateCategory,
+  onOpenSearch
 }: ChatHeaderProps) {
   return (
     <div className="flex items-center gap-3 px-4 py-3 bg-background">
@@ -99,6 +101,7 @@ export default function ChatHeader({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem onClick={onEditChat}>{strings.chatMenu.contactInfo}</DropdownMenuItem>
+            <DropdownMenuItem onClick={onOpenSearch}>{strings.chatMenu.search}</DropdownMenuItem>
             <DropdownMenuItem onClick={chat.isArchived ? onUnarchiveChat : onArchiveChat}>
               {chat.isArchived ? strings.chatMenu.unarchive : strings.chatMenu.archive}
             </DropdownMenuItem>

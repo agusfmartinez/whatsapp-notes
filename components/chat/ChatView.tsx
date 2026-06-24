@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
+import { Search, X } from "lucide-react"
 import ChatHeader from "./ChatHeader"
 import MessageBubble from "./MessageBubble"
 import Composer from "./Composer"
@@ -53,6 +54,14 @@ export default function ChatView({
   chatController
 }: ChatViewProps) {
   const messagesRef = useRef<HTMLDivElement | null>(null)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [msgQuery, setMsgQuery] = useState("")
+
+  // Cerrar/limpiar el buscador al cambiar de chat
+  useEffect(() => {
+    setSearchOpen(false)
+    setMsgQuery("")
+  }, [chat.id])
 
   const scrollToBottom = () => {
     requestAnimationFrame(() => {
@@ -66,23 +75,31 @@ export default function ChatView({
     scrollToBottom()
   }, [chat.id, chat.messages.length])
 
+  const query = msgQuery.trim().toLowerCase()
+  const visibleMessages = query
+    ? chat.messages.filter((m) => m.text.toLowerCase().includes(query))
+    : chat.messages
+
   const messagesWithLabels: React.ReactNode[] = []
   let lastLabel = ""
   let prevSent: boolean | null = null
 
-  chat.messages.forEach((message) => {
-    const label = message.timestamp ? formatDayLabel(message.timestamp) : ""
+  visibleMessages.forEach((message) => {
     let labelBreak = false
-    if (label && label !== lastLabel) {
-      messagesWithLabels.push(
-        <div key={`${message.id}-label`} className="flex justify-center my-2">
-          <span className="text-xs text-gray-300 bg-[#1a222b] px-3 py-1 rounded-full">
-            {label}
-          </span>
-        </div>
-      )
-      lastLabel = label
-      labelBreak = true
+    // Al buscar no se muestran separadores de fecha (cada match es su propio grupo)
+    if (!query) {
+      const label = message.timestamp ? formatDayLabel(message.timestamp) : ""
+      if (label && label !== lastLabel) {
+        messagesWithLabels.push(
+          <div key={`${message.id}-label`} className="flex justify-center my-2">
+            <span className="text-xs text-gray-300 bg-[#1a222b] px-3 py-1 rounded-full">
+              {label}
+            </span>
+          </div>
+        )
+        lastLabel = label
+        labelBreak = true
+      }
     }
 
     const isSelected =
@@ -154,7 +171,31 @@ export default function ChatView({
         onAssignCategory={chatController.onAssignCategory}
         categories={chatController.categories}
         onCreateCategory={chatController.onCreateCategory}
+        onOpenSearch={() => setSearchOpen(true)}
       />
+
+      {searchOpen && (
+        <div className="flex items-center gap-2 px-4 py-2 bg-background border-b border-border">
+          <Search size={18} className="text-muted-foreground" aria-hidden="true" />
+          <input
+            type="search"
+            autoFocus
+            value={msgQuery}
+            onChange={(e) => setMsgQuery(e.target.value)}
+            placeholder={strings.chatMenu.searchPlaceholder}
+            aria-label={strings.chatMenu.searchPlaceholder}
+            className="flex-1 bg-transparent text-foreground text-sm outline-none placeholder:text-muted-foreground"
+          />
+          <button
+            type="button"
+            onClick={() => { setSearchOpen(false); setMsgQuery("") }}
+            aria-label={strings.chatMenu.closeSearch}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <X size={18} />
+          </button>
+        </div>
+      )}
 
       {/* Messages (scrolleable) */}
       <div
@@ -171,7 +212,7 @@ export default function ChatView({
           messagesWithLabels
         ) : (
           <div className="h-full flex items-center justify-center text-foreground text-sm text-center px-6">
-            {strings.emptyMessages}
+            {query ? strings.chatMenu.searchNoResults : strings.emptyMessages}
           </div>
         )}
       </div>
