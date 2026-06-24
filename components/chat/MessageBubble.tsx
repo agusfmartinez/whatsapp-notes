@@ -33,6 +33,8 @@ export default function MessageBubble({
         onPointerUp={onLongPressCancel}
         onPointerCancel={onLongPressCancel}
         onPointerLeave={onLongPressCancel}
+        // tap sobre la burbuja no des-selecciona
+        onClick={(e) => e.stopPropagation()}
       >
         <p className="text-sm leading-relaxed">{message.text}</p>
         <div className="flex items-center justify-end gap-1 mt-1">

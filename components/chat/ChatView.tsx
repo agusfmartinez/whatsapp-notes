@@ -153,11 +153,10 @@ export default function ChatView({
         ref={messagesRef}
         className="flex-1 overflow-y-auto px-4 py-4 space-y-2"
         style={{ paddingBottom: kbOffset + 88, scrollPaddingBottom: 88 }}
-        onClick={(e) => {
-          // si hacés tap en el fondo (no sobre un bubble), des-selecciona
-          if (e.target === e.currentTarget) {
-            chatController.onDeselectMessage()
-          }
+        onClick={() => {
+          // tap en cualquier parte del área de mensajes (fuera de una burbuja)
+          // des-selecciona; la burbuja frena la propagación.
+          chatController.onDeselectMessage()
         }}
       >
         {messagesWithLabels.length > 0 ? (
