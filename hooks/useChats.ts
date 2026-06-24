@@ -7,6 +7,7 @@ import { formatTime } from "@/lib/time"
 export function useChats() {
   const [chats, setChats] = useState<Chat[]>([])
   const [categories, setCategories] = useState<Category[]>([])
+  const [loaded, setLoaded] = useState(false)
 
   // Cargar desde localStorage al iniciar
   useEffect(() => {
@@ -26,6 +27,8 @@ export function useChats() {
         setCategories([])
       }
     }
+
+    setLoaded(true)
   }, [])
 
   // Guardar cada vez que cambien los chats
@@ -136,6 +139,7 @@ export function useChats() {
     chats,
     setChats,
     categories,
+    loaded,
     createChat,
     deleteChat,
     sendMessage,

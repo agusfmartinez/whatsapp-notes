@@ -1,6 +1,6 @@
 "use client"
 
-import { useReducer, useMemo, useState, useCallback } from "react"
+import { useReducer, useMemo, useState, useCallback, useEffect, useRef } from "react"
 import { useChats } from "@/hooks/useChats"
 import { useKeyboardOffset } from "@/hooks/useKeyboardOffset"
 import { useLongPress } from "@/hooks/useLongPress"
@@ -19,7 +19,8 @@ import ArchivedChatsView from "@/components/views/ArchivedChatsView"
 export default function WhatsAppInterface() {
   const [uiState, dispatch] = useReducer(chatUiReducer, initialState)
   const [inputValue, setInputValue] = useState("")
-  const { chats, createChat, deleteChat, sendMessage, deleteMessage, editMessage, updateChat, categories, addCategory, deleteCategory } = useChats()
+  const { chats, createChat, deleteChat, sendMessage, deleteMessage, editMessage, updateChat, categories, addCategory, deleteCategory, loaded } = useChats()
+  const restoredLastChat = useRef(false)
   const [newCategoryOpen, setNewCategoryOpen] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState("")
   const [deleteCategoryOpen, setDeleteCategoryOpen] = useState(false)
@@ -34,6 +35,25 @@ export default function WhatsAppInterface() {
     if (!uiState.selectedChatId) return null
     return chats.find(c => c.id === uiState.selectedChatId) || null
   }, [chats, uiState.selectedChatId])
+
+  // Restaurar el último chat abierto una vez que los chats cargaron
+  useEffect(() => {
+    if (!loaded || restoredLastChat.current) return
+    restoredLastChat.current = true
+    const lastId = localStorage.getItem("lastChatId")
+    if (lastId && chats.some(c => c.id === Number(lastId))) {
+      dispatch({ type: "NAVIGATE_TO_CHAT", payload: Number(lastId) })
+    }
+  }, [loaded, chats])
+
+  // Persistir el chat abierto; limpiar al volver a la lista
+  useEffect(() => {
+    if (uiState.view === "chat" && uiState.selectedChatId != null) {
+      localStorage.setItem("lastChatId", String(uiState.selectedChatId))
+    } else if (uiState.view === "chatList") {
+      localStorage.removeItem("lastChatId")
+    }
+  }, [uiState.view, uiState.selectedChatId])
 
   const openCropperFor = async (file: File, target: "new" | "edit") => {
     const raw = await fileToDataURL(file)

@@ -1,6 +1,7 @@
 # Changelog
 
 ## v1.2.0 - 2026-06-23
+- Guardar último chat abierto: al reabrir la app vuelve al chat que estaba abierto; si estabas en la lista, abre la lista.
 - Chats fijados: opción "Fijar/Desfijar chat" en el menú del chat; los fijados aparecen primero en la lista (indicador 📌).
 - Fix: la vista de chat tenía un fondo rojo de debug (`bg-red-900/50`); ahora usa los tokens `bg-background`/`text-foreground`.
 - Buscador funcional en la pantalla principal: filtra chats por nombre y por contenido de los mensajes.
