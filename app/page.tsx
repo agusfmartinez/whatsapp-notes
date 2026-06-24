@@ -46,12 +46,11 @@ export default function WhatsAppInterface() {
     }
   }, [loaded, chats])
 
-  // Persistir el chat abierto; limpiar al volver a la lista
+  // Persistir el chat abierto (solo escribe; el limpiado se hace al volver
+  // a la lista, para no borrar lastChatId antes de restaurarlo al montar).
   useEffect(() => {
     if (uiState.view === "chat" && uiState.selectedChatId != null) {
       localStorage.setItem("lastChatId", String(uiState.selectedChatId))
-    } else if (uiState.view === "chatList") {
-      localStorage.removeItem("lastChatId")
     }
   }, [uiState.view, uiState.selectedChatId])
 
@@ -109,6 +108,7 @@ export default function WhatsAppInterface() {
   }, [])
 
   const handleBackToChats = useCallback(() => {
+    localStorage.removeItem("lastChatId")
     dispatch({ type: "NAVIGATE_BACK_TO_CHATS" })
   }, [])
 
@@ -173,12 +173,14 @@ export default function WhatsAppInterface() {
   const archiveSelectedChat = useCallback(() => {
     if (!selectedChat) return
     updateChat(selectedChat.id, { category: undefined, isArchived: true })
+    localStorage.removeItem("lastChatId")
     dispatch({ type: "NAVIGATE_BACK_TO_CHATS" })
   }, [selectedChat, updateChat])
 
   const unarchiveSelectedChat = useCallback(() => {
     if (!selectedChat) return
     updateChat(selectedChat.id, { isArchived: false })
+    localStorage.removeItem("lastChatId")
     dispatch({ type: "NAVIGATE_BACK_TO_CHATS" })
   }, [selectedChat, updateChat])
 
