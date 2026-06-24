@@ -16,6 +16,7 @@ interface ChatController {
   onUnarchiveChat: () => void
   onTogglePin: () => void
   onClearChat: (chatId: number) => void
+  onToggleOnline: () => void
   onToggleComposeMode: () => void
   onEditMessage: () => void
   onDeleteMessage: () => void
@@ -137,6 +138,7 @@ export default function ChatView({
         onUnarchiveChat={chatController.onUnarchiveChat}
         onTogglePin={chatController.onTogglePin}
         onClearChat={chatController.onClearChat}
+        onToggleOnline={chatController.onToggleOnline}
         onToggleComposeMode={chatController.onToggleComposeMode}
         onEditMessage={chatController.onEditMessage}
         onDeleteMessage={chatController.onDeleteMessage}

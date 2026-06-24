@@ -27,6 +27,7 @@ interface ChatHeaderProps {
   onUnarchiveChat: () => void
   onTogglePin: () => void
   onClearChat: (chatId: number) => void
+  onToggleOnline: () => void
   onToggleComposeMode: () => void
   onEditMessage: () => void
   onDeleteMessage: () => void
@@ -47,6 +48,7 @@ export default function ChatHeader({
   onUnarchiveChat,
   onTogglePin,
   onClearChat,
+  onToggleOnline,
   onToggleComposeMode,
   onEditMessage,
   onDeleteMessage,
@@ -79,6 +81,9 @@ export default function ChatHeader({
       
       <div className="flex-1">
         <h2 className="font-medium text-foreground">{chat.name}</h2>
+        {chat.showOnline && (
+          <p className="text-xs text-muted-foreground">{strings.chatMenu.online}</p>
+        )}
       </div>
       
       <div className="flex items-center gap-4">
@@ -100,6 +105,9 @@ export default function ChatHeader({
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onClearChat(chat.id)} disabled={chat.messages.length === 0}>
               {strings.chatMenu.clear}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onToggleOnline}>
+              {chat.showOnline ? strings.chatMenu.hideOnline : strings.chatMenu.showOnline}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onDeleteChat(chat.id)} className="text-red-500 focus:text-red-600">
               {strings.chatMenu.delete}

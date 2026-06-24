@@ -20,6 +20,7 @@ export type Message = {
     category?: string
     isArchived?: boolean
     isPinned?: boolean
+    showOnline?: boolean
     hasSticker?: boolean
     isOfficial?: boolean
     isGroup?: boolean

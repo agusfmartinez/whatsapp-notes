@@ -26,6 +26,9 @@ export const strings = {
     pin: "Fijar chat",
     unpin: "Desfijar chat",
     clear: "Vaciar chat",
+    showOnline: "Mostrar \"en línea\"",
+    hideOnline: "Ocultar \"en línea\"",
+    online: "en línea",
     delete: "Eliminar chat",
     toggleComposeMe: {
       send: "Enviar mensaje",

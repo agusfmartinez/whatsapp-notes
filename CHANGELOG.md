@@ -1,6 +1,8 @@
 # Changelog
 
 ## v1.2.0 - 2026-06-23
+- Indicador "en línea": switch en el menú del chat para mostrar/ocultar "en línea" bajo el nombre en el header.
+- Hover en modo claro: el fondo de hover/focus de menús y botones era azul (`--accent`); ahora es gris sutil.
 - Vaciar chat: opción en el menú del chat (deshabilitada si no hay mensajes) con modal de confirmación; borra todos los mensajes sin eliminar el chat.
 - Guardar último chat abierto: al reabrir la app vuelve al chat que estaba abierto; si estabas en la lista, abre la lista.
 - Chats fijados: opción "Fijar/Desfijar chat" en el menú del chat; los fijados aparecen primero en la lista (indicador 📌).

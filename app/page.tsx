@@ -189,6 +189,11 @@ export default function WhatsAppInterface() {
     updateChat(selectedChat.id, { isPinned: !selectedChat.isPinned })
   }, [selectedChat, updateChat])
 
+  const toggleOnlineSelectedChat = useCallback(() => {
+    if (!selectedChat) return
+    updateChat(selectedChat.id, { showOnline: !selectedChat.showOnline })
+  }, [selectedChat, updateChat])
+
   const openNewCategory = useCallback(() => {
     setNewCategoryName("")
     setNewCategoryOpen(true)
@@ -276,6 +281,7 @@ export default function WhatsAppInterface() {
     onUnarchiveChat: unarchiveSelectedChat,
     onTogglePin: togglePinSelectedChat,
     onClearChat: requestClearChat,
+    onToggleOnline: toggleOnlineSelectedChat,
     onToggleComposeMode: () => dispatch({ type: "TOGGLE_COMPOSE_MODE" }),
     onEditMessage: beginEditSelectedMessage,
     onDeleteMessage: deleteSelectedMessage,
@@ -305,6 +311,7 @@ export default function WhatsAppInterface() {
     unarchiveSelectedChat,
     togglePinSelectedChat,
     requestClearChat,
+    toggleOnlineSelectedChat,
     categories,
     openNewCategory,
     saveEditedMessage,
