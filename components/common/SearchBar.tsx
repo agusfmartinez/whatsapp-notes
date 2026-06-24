@@ -27,25 +27,16 @@ export default function SearchBar({
           aria-hidden="true"
         />
 
-        {onChange ? (
-          <Input
-            type="search"
-            placeholder={placeholder}
-            value={inputValue}
-            aria-label={ariaLabel}
-            onChange={(e) => onChange(e.target.value)}
-            className="bg-muted border-border text-foreground pl-10 rounded-full"
-          />
-        ) : (
-          <Input
-            type="search"
-            placeholder={placeholder}
-            value={inputValue}
-            aria-label={ariaLabel}
-            readOnly
-            className="bg-muted border-border text-foreground pl-10 rounded-full"
-          />
-        )}
+        <Input
+          type="search"
+          placeholder={placeholder}
+          value={inputValue}
+          aria-label={ariaLabel}
+          readOnly={!onChange}
+          onChange={onChange ? (e) => onChange(e.target.value) : undefined}
+          suppressHydrationWarning
+          className="bg-muted border-border text-foreground pl-10 rounded-full"
+        />
       </div>
     </div>
   )
