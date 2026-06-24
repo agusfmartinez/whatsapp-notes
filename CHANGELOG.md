@@ -1,6 +1,7 @@
 # Changelog
 
 ## v1.2.0 - 2026-06-23
+- Tail/pico en mensajes: el primer mensaje de cada cadena (mismo emisor consecutivo, o tras separador de fecha) lleva pico y esquina apuntada; los siguientes van más juntos.
 - Menú principal: "Acerca de" (modal con nombre, versión y descripción), "Exportar notas" (descarga un JSON con chats + categorías) e "Importar notas" (carga un JSON, con validación y confirmación de reemplazo).
 - Descripción de chat: campo editable en la página de editar; se muestra bajo el nombre en el header (cuando no está "en línea"). De paso se corrige que el form de editar abría con el nombre vacío en vez de precargado.
 - Indicador "en línea": switch en el menú del chat para mostrar/ocultar "en línea" bajo el nombre en el header.

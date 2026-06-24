@@ -68,9 +68,11 @@ export default function ChatView({
 
   const messagesWithLabels: React.ReactNode[] = []
   let lastLabel = ""
+  let prevSent: boolean | null = null
 
   chat.messages.forEach((message) => {
     const label = message.timestamp ? formatDayLabel(message.timestamp) : ""
+    let labelBreak = false
     if (label && label !== lastLabel) {
       messagesWithLabels.push(
         <div key={`${message.id}-label`} className="flex justify-center my-2">
@@ -80,16 +82,22 @@ export default function ChatView({
         </div>
       )
       lastLabel = label
+      labelBreak = true
     }
 
     const isSelected =
       selectedMsg?.chatId === chat.id && selectedMsg?.msgId === message.id
+
+    // Primer mensaje de la cadena: cambia el emisor o hay un separador de fecha
+    const isFirstOfGroup = labelBreak || prevSent === null || prevSent !== message.isSent
+    prevSent = message.isSent
 
     messagesWithLabels.push(
       <MessageBubble
         key={message.id}
         message={message}
         isSelected={isSelected}
+        isFirstOfGroup={isFirstOfGroup}
         onLongPress={() => chatController.onStartSelectLongPress(chat.id, message.id)}
         onLongPressCancel={chatController.onCancelLongPress}
       />
