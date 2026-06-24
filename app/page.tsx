@@ -21,6 +21,7 @@ export default function WhatsAppInterface() {
   const [inputValue, setInputValue] = useState("")
   const { chats, createChat, deleteChat, clearChat, sendMessage, deleteMessage, editMessage, updateChat, categories, addCategory, deleteCategory, loaded } = useChats()
   const restoredLastChat = useRef(false)
+  const [restoring, setRestoring] = useState(true)
   const [newCategoryOpen, setNewCategoryOpen] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState("")
   const [deleteCategoryOpen, setDeleteCategoryOpen] = useState(false)
@@ -36,7 +37,8 @@ export default function WhatsAppInterface() {
     return chats.find(c => c.id === uiState.selectedChatId) || null
   }, [chats, uiState.selectedChatId])
 
-  // Restaurar el último chat abierto una vez que los chats cargaron
+  // Restaurar el último chat abierto una vez que los chats cargaron.
+  // Mientras tanto se muestra un splash para no ver la lista por un frame.
   useEffect(() => {
     if (!loaded || restoredLastChat.current) return
     restoredLastChat.current = true
@@ -44,6 +46,7 @@ export default function WhatsAppInterface() {
     if (lastId && chats.some(c => c.id === Number(lastId))) {
       dispatch({ type: "NAVIGATE_TO_CHAT", payload: Number(lastId) })
     }
+    setRestoring(false)
   }, [loaded, chats])
 
   // Persistir el chat abierto (solo escribe; el limpiado se hace al volver
@@ -318,6 +321,19 @@ export default function WhatsAppInterface() {
     startSelectLongPress,
     cancelLongPress
   ])
+
+  // Splash mientras cargan los chats y se decide si restaurar el último chat
+  if (!loaded || restoring) {
+    return (
+      <div className="bg-background text-foreground h-screen w-screen flex items-center justify-center">
+        <div
+          className="h-8 w-8 rounded-full border-2 border-muted border-t-primary animate-spin"
+          role="status"
+          aria-label="Cargando"
+        />
+      </div>
+    )
+  }
 
   if (uiState.view === "newChat") {
     return (
