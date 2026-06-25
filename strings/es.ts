@@ -18,7 +18,7 @@ export const strings = {
     changeLabel: "Nueva clave (deja vacío para mantener)",
     placeholder: "Clave o PIN",
     remove: "Quitar bloqueo",
-    warning: "⚠️ No hay recuperación de clave. Es todo local (sin usuarios, mail ni backend): si la olvidás, perdés el acceso a este chat.",
+    warning: "⚠️ Importante: el bloqueo no tiene recuperación de clave, si la olvidás perdés el acceso a este chat de forma permanente. Anotala en un lugar seguro.",
     unlockTitle: "Chat protegido",
     unlockPrompt: "Ingresá la clave para abrir este chat.",
     unlockError: "Clave incorrecta.",
